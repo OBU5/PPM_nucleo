@@ -45,6 +45,7 @@
 ETH_HandleTypeDef heth;
 
 SPI_HandleTypeDef hspi1;
+DMA_HandleTypeDef hdma_spi1_rx;
 
 TIM_HandleTypeDef htim14;
 
@@ -55,11 +56,13 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 /* USER CODE BEGIN PV */
 uint8_t buffer_rx[3];
 uint16_t adc;
+uint32_t rxCount = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ETH_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
@@ -105,6 +108,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ETH_Init();
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
@@ -370,6 +374,22 @@ static void MX_USB_OTG_FS_PCD_Init(void)
 
 }
 
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+
+}
+
 /**
   * @brief GPIO Initialization Function
   * @param None
@@ -433,14 +453,18 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, SET);
-	adc = (uint16_t) 256 * buffer_rx[1] + (uint16_t) buffer_rx[2];
+	if(hspi == &hspi1){
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, SET);
+		adc = (uint16_t) 256 * buffer_rx[1] + (uint16_t) buffer_rx[2];
+		rxCount++;
+	}
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim14) {
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, RESET);
-		HAL_SPI_Receive_IT(&hspi1, buffer_rx,3);
+		HAL_SPI_Receive_DMA(&hspi1,(uint8_t*) buffer_rx,3);
+
 	}
 }
 /* USER CODE END 4 */
