@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "float.h"
+#include "string.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -454,15 +456,20 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 	if(hspi == &hspi1){
+		char msg[16];
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, SET);
 		adc = (uint16_t) 256 * buffer_rx[1] + (uint16_t) buffer_rx[2];
 		rxCount++;
+		sprintf(msg,"%hu\n",adc);
+		HAL_UART_Transmit(&huart3,(uint8_t*)msg, strlen(msg), HAL_MAX_DELAY );
+
 	}
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim14) {
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, RESET);
+
 		HAL_SPI_Receive_DMA(&hspi1,(uint8_t*) buffer_rx,3);
 
 	}
