@@ -68,7 +68,7 @@ uint32_t IC_Value1 = 0;
 uint32_t IC_Value2 = 0;
 uint32_t difference = 0;
 uint32_t frequency = 0;
-uint8_t Is_First_Captured = 0;  // 0- not captured, 1- captured
+uint8_t firstCapturedSample = 0;  // 0- not captured, 1- captured
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -742,16 +742,16 @@ void Configure_DMA(void) {
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	if(htim->Instance == TIM2){
 	HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-		if (Is_First_Captured == 0) {
+		if (firstCapturedSample == 0) {
 			IC_Value1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-			Is_First_Captured = 1;
+			firstCapturedSample = 1;
 		}
 
-		else if (Is_First_Captured) {
+		else if (firstCapturedSample) {
 			IC_Value2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
 			difference = IC_Value2 - IC_Value1;
 			frequency =  HAL_RCC_GetHCLKFreq() / difference;
-			Is_First_Captured = 0;
+			firstCapturedSample = 0;
 		}
 	}
 }
