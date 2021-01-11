@@ -1451,65 +1451,65 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
- 8000c00:	4b14      	ldr	r3, [pc, #80]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c02:	4a15      	ldr	r2, [pc, #84]	; (8000c58 <MX_USART3_UART_Init+0x5c>)
+ 8000c00:	4b13      	ldr	r3, [pc, #76]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c02:	4a14      	ldr	r2, [pc, #80]	; (8000c54 <MX_USART3_UART_Init+0x58>)
  8000c04:	601a      	str	r2, [r3, #0]
-  huart3.Init.BaudRate = 115200;
- 8000c06:	4b13      	ldr	r3, [pc, #76]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c08:	f44f 32e1 	mov.w	r2, #115200	; 0x1c200
- 8000c0c:	605a      	str	r2, [r3, #4]
+  huart3.Init.BaudRate = 2000000;
+ 8000c06:	4b12      	ldr	r3, [pc, #72]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c08:	4a13      	ldr	r2, [pc, #76]	; (8000c58 <MX_USART3_UART_Init+0x5c>)
+ 8000c0a:	605a      	str	r2, [r3, #4]
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
- 8000c0e:	4b11      	ldr	r3, [pc, #68]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c10:	2200      	movs	r2, #0
- 8000c12:	609a      	str	r2, [r3, #8]
+ 8000c0c:	4b10      	ldr	r3, [pc, #64]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c0e:	2200      	movs	r2, #0
+ 8000c10:	609a      	str	r2, [r3, #8]
   huart3.Init.StopBits = UART_STOPBITS_1;
- 8000c14:	4b0f      	ldr	r3, [pc, #60]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c16:	2200      	movs	r2, #0
- 8000c18:	60da      	str	r2, [r3, #12]
+ 8000c12:	4b0f      	ldr	r3, [pc, #60]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c14:	2200      	movs	r2, #0
+ 8000c16:	60da      	str	r2, [r3, #12]
   huart3.Init.Parity = UART_PARITY_NONE;
- 8000c1a:	4b0e      	ldr	r3, [pc, #56]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c1c:	2200      	movs	r2, #0
- 8000c1e:	611a      	str	r2, [r3, #16]
+ 8000c18:	4b0d      	ldr	r3, [pc, #52]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c1a:	2200      	movs	r2, #0
+ 8000c1c:	611a      	str	r2, [r3, #16]
   huart3.Init.Mode = UART_MODE_TX_RX;
- 8000c20:	4b0c      	ldr	r3, [pc, #48]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c22:	220c      	movs	r2, #12
- 8000c24:	615a      	str	r2, [r3, #20]
+ 8000c1e:	4b0c      	ldr	r3, [pc, #48]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c20:	220c      	movs	r2, #12
+ 8000c22:	615a      	str	r2, [r3, #20]
   huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
- 8000c26:	4b0b      	ldr	r3, [pc, #44]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c28:	2200      	movs	r2, #0
- 8000c2a:	619a      	str	r2, [r3, #24]
+ 8000c24:	4b0a      	ldr	r3, [pc, #40]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c26:	2200      	movs	r2, #0
+ 8000c28:	619a      	str	r2, [r3, #24]
   huart3.Init.OverSampling = UART_OVERSAMPLING_16;
- 8000c2c:	4b09      	ldr	r3, [pc, #36]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c2e:	2200      	movs	r2, #0
- 8000c30:	61da      	str	r2, [r3, #28]
+ 8000c2a:	4b09      	ldr	r3, [pc, #36]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c2c:	2200      	movs	r2, #0
+ 8000c2e:	61da      	str	r2, [r3, #28]
   huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
- 8000c32:	4b08      	ldr	r3, [pc, #32]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c34:	2200      	movs	r2, #0
- 8000c36:	621a      	str	r2, [r3, #32]
+ 8000c30:	4b07      	ldr	r3, [pc, #28]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c32:	2200      	movs	r2, #0
+ 8000c34:	621a      	str	r2, [r3, #32]
   huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
- 8000c38:	4b06      	ldr	r3, [pc, #24]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c3a:	2200      	movs	r2, #0
- 8000c3c:	625a      	str	r2, [r3, #36]	; 0x24
+ 8000c36:	4b06      	ldr	r3, [pc, #24]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c38:	2200      	movs	r2, #0
+ 8000c3a:	625a      	str	r2, [r3, #36]	; 0x24
   if (HAL_UART_Init(&huart3) != HAL_OK)
- 8000c3e:	4805      	ldr	r0, [pc, #20]	; (8000c54 <MX_USART3_UART_Init+0x58>)
- 8000c40:	f005 fa06 	bl	8006050 <HAL_UART_Init>
- 8000c44:	4603      	mov	r3, r0
- 8000c46:	2b00      	cmp	r3, #0
- 8000c48:	d001      	beq.n	8000c4e <MX_USART3_UART_Init+0x52>
+ 8000c3c:	4804      	ldr	r0, [pc, #16]	; (8000c50 <MX_USART3_UART_Init+0x54>)
+ 8000c3e:	f005 fa07 	bl	8006050 <HAL_UART_Init>
+ 8000c42:	4603      	mov	r3, r0
+ 8000c44:	2b00      	cmp	r3, #0
+ 8000c46:	d001      	beq.n	8000c4c <MX_USART3_UART_Init+0x50>
   {
     Error_Handler();
- 8000c4a:	f000 fa4f 	bl	80010ec <Error_Handler>
+ 8000c48:	f000 fa50 	bl	80010ec <Error_Handler>
   }
   /* USER CODE BEGIN USART3_Init 2 */
 
   /* USER CODE END USART3_Init 2 */
 
 }
- 8000c4e:	bf00      	nop
- 8000c50:	bd80      	pop	{r7, pc}
- 8000c52:	bf00      	nop
- 8000c54:	200000f4 	.word	0x200000f4
- 8000c58:	40004800 	.word	0x40004800
+ 8000c4c:	bf00      	nop
+ 8000c4e:	bd80      	pop	{r7, pc}
+ 8000c50:	200000f4 	.word	0x200000f4
+ 8000c54:	40004800 	.word	0x40004800
+ 8000c58:	001e8480 	.word	0x001e8480
 
 08000c5c <MX_USB_OTG_FS_PCD_Init>:
   * @brief USB_OTG_FS Initialization Function
