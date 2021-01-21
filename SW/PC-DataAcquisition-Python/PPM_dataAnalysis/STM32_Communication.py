@@ -20,6 +20,7 @@ else:
 #serial.write(mode)     # write a string
 
 #Get data from serial as fast as possible
+serial.write(b'hello')
 buffer = []
 terminate = 0
 while terminate != 1:    
