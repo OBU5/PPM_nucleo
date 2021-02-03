@@ -67,6 +67,7 @@ typedef struct States {
 	uint8_t activeMeasureTechnique;
 	int16_t remainingMeasurements;
 	int16_t setMeasurements;
+	uint8_t measureTechniqueUpdated;
 	uint8_t preparedToRunPolarizationPhase;
 	uint16_t index;
 } State;
@@ -817,6 +818,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 		filledBuffers = 0;
 		sendDataOverUART();
 
+		state.remainingMeasurements--;
 		//if freq should be measured only once, after the measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.activeMeasureTechnique = 0;
@@ -827,13 +829,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 					samplesPerPeriod);
 		}
 
-		state.remainingMeasurements--;
 	}
 
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == USART3) {
+		state.measureTechniqueUpdated = 1;
 		prepareForNextMeasurements(buffer_uart_rx);
 		char msg_buffer[18];
 		sprintf(msg_buffer, "Mode %u selected\n\r", state.setMeasureTechnique);
@@ -919,16 +921,19 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 		// turn off timers
 		HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
 		HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_2);
+		HAL_TIM_PWM_Stop_IT(&htim8, TIM_CHANNEL_1);
 
 		filledBuffers = 0;
 		sendDataOverUART();
 
+		state.remainingMeasurements--;
 		//if this is the last measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.activeMeasureTechnique = 0;
-			state.preparedToRunPolarizationPhase = 0;
 		}
-		state.remainingMeasurements--;
+		else{
+			state.preparedToRunPolarizationPhase = 1;
+		}
 
 	}
 
@@ -994,13 +999,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	}
 
 	// period  100 ms
-	if (htim->Instance == TIM3) {
+	if (htim->Instance == TIM3) {/*
 		if (state.index < PERIOD) {
 			chooseActionByState();
 		} else {
 			state.index = 0;
 		}
-		state.index++;
+		state.index++;*/
 
 	}
 
@@ -1057,16 +1062,18 @@ void initState() {
 }
 
 void chooseActionByState() {
+	// if new measurement technique was set, update remaining measurements as well
+	if (state.measureTechniqueUpdated) {
+		state.remainingMeasurements = state.setMeasurements;
+		state.activeMeasureTechnique = state.setMeasureTechnique;
+		state.measureTechniqueUpdated = 0;
 
-	state.activeMeasureTechnique = state.setMeasureTechnique;
-	state.remainingMeasurements = state.setMeasurements;
+	}
 	switch (state.activeMeasureTechnique) {
 
 	case 0:
 		// Idle state
-		HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, 0);
-		HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, 0);
-		HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, 0);
+		showOnLEDs(0, 0, 0);
 		break;
 	case 1:
 		// measure with external ADC
@@ -1134,16 +1141,21 @@ void measureFrequencyWithTimer(TIM_HandleTypeDef *htim) {
 		frequency = /*HAL_RCC_GetHCLKFreq() /*/difference;
 		firstCapturedSample = 0;
 		sendDataOverUART();
+
+		state.remainingMeasurements--;
 		//if freq should be measured only once, after the measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.activeMeasureTechnique = 0;
-			state.preparedToRunPolarizationPhase = 0;
 		}
-		state.remainingMeasurements--;
+		else{
+			state.preparedToRunPolarizationPhase = 1;
+		}
 	}
 }
 
 void runPolarizationSequence() {
+	//polarization phase will be ready after measurements
+	state.preparedToRunPolarizationPhase = 0;
 
 	// visualise
 	showOnLEDs(1, 1, 1);
