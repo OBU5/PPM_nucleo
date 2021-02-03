@@ -112,6 +112,25 @@ void Error_Handler(void);
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
+<<<<<<< Updated upstream
+=======
+#define Comp_Pin GPIO_PIN_15
+#define Comp_GPIO_Port GPIOA
+#define Switches_driver_enable_Pin GPIO_PIN_0
+#define Switches_driver_enable_GPIO_Port GPIOD
+#define S1_Pin GPIO_PIN_1
+#define S1_GPIO_Port GPIOD
+#define S2_Pin GPIO_PIN_2
+#define S2_GPIO_Port GPIOD
+#define S3_Pin GPIO_PIN_3
+#define S3_GPIO_Port GPIOD
+#define S4_Pin GPIO_PIN_4
+#define S4_GPIO_Port GPIOD
+#define S5_Pin GPIO_PIN_5
+#define S5_GPIO_Port GPIOD
+#define S6_Pin GPIO_PIN_6
+#define S6_GPIO_Port GPIOD
+>>>>>>> Stashed changes
 #define RMII_TX_EN_Pin GPIO_PIN_11
 #define RMII_TX_EN_GPIO_Port GPIOG
 #define RMII_TXD0_Pin GPIO_PIN_13

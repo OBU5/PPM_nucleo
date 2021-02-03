@@ -9,18 +9,18 @@ CDefines=USE_FULL_LL_DRIVER;USE_HAL_DRIVER;STM32F767xx;USE_HAL_DRIVER;USE_HAL_DR
 [PreviousGenFiles]
 AdvancedFolderStructure=true
 HeaderFileListSize=4
-HeaderFiles#0=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Inc/stm32f7xx_it.h
-HeaderFiles#1=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Inc/stm32_assert.h
-HeaderFiles#2=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Inc/stm32f7xx_hal_conf.h
-HeaderFiles#3=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Inc/main.h
+HeaderFiles#0=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Inc/stm32f7xx_it.h
+HeaderFiles#1=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Inc/stm32_assert.h
+HeaderFiles#2=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Inc/stm32f7xx_hal_conf.h
+HeaderFiles#3=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Inc/main.h
 HeaderFolderListSize=1
-HeaderPath#0=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Inc
+HeaderPath#0=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Inc
 HeaderFiles=;
 SourceFileListSize=3
-SourceFiles#0=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Src/stm32f7xx_it.c
-SourceFiles#1=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Src/stm32f7xx_hal_msp.c
-SourceFiles#2=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Src/main.c
+SourceFiles#0=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Src/stm32f7xx_it.c
+SourceFiles#1=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Src/stm32f7xx_hal_msp.c
+SourceFiles#2=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Src/main.c
 SourceFolderListSize=1
-SourcePath#0=C:/Users/OBU/OneDrive/Documents/STM32CubeIDE/workspace_1.0.2/PPM_nucleo/Core/Src
+SourcePath#0=C:/Users/OBU/OneDrive/Documents/CVUT/ING/Diplomka/ProtonPrecessionMagnetometer/SW/STM32_PPM/PPM_nucleo/Core/Src
 SourceFiles=;
 
