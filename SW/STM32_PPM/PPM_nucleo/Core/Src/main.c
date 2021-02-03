@@ -838,7 +838,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		state.measureTechniqueUpdated = 1;
 		prepareForNextMeasurements(buffer_uart_rx);
 		char msg_buffer[18];
-		sprintf(msg_buffer, "Mode %u selected\n\r", state.setMeasureTechnique);
+		//sprintf(msg_buffer, "Mode %u selected\n\r", state.setMeasureTechnique);
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffer, strlen(msg_buffer),
 				10);
 		//wait for next incomming data
