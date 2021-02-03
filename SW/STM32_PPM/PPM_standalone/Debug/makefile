@@ -40,8 +40,8 @@ PPM_standalone.bin \
 all: PPM_standalone.elf secondary-outputs
 
 # Tool invocations
-PPM_standalone.elf: $(OBJS) $(USER_OBJS) C:\Users\OBU\OneDrive\Documents\STM32CubeIDE\workspace_1.0.2\PPM_standalone\STM32F767VITX_FLASH.ld
-	arm-none-eabi-gcc -o "PPM_standalone.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\OBU\OneDrive\Documents\STM32CubeIDE\workspace_1.0.2\PPM_standalone\STM32F767VITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="PPM_standalone.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+PPM_standalone.elf: $(OBJS) $(USER_OBJS) C:\Users\OBU\OneDrive\Documents\CVUT\ING\Diplomka\ProtonPrecessionMagnetometer\SW\STM32_PPM\PPM_standalone\STM32F767VITX_FLASH.ld
+	arm-none-eabi-gcc -o "PPM_standalone.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\OBU\OneDrive\Documents\CVUT\ING\Diplomka\ProtonPrecessionMagnetometer\SW\STM32_PPM\PPM_standalone\STM32F767VITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="PPM_standalone.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

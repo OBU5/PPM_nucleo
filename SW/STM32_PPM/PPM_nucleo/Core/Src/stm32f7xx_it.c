@@ -56,15 +56,14 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_spi1_rx;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
-<<<<<<< Updated upstream
-=======
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
->>>>>>> Stashed changes
 extern TIM_HandleTypeDef htim8;
+extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -234,8 +233,6 @@ void TIM2_IRQHandler(void)
 }
 
 /**
-<<<<<<< Updated upstream
-=======
   * @brief This function handles TIM3 global interrupt.
   */
 void TIM3_IRQHandler(void)
@@ -278,7 +275,6 @@ void USART3_IRQHandler(void)
 }
 
 /**
->>>>>>> Stashed changes
   * @brief This function handles TIM8 capture compare interrupt.
   */
 void TIM8_CC_IRQHandler(void)
@@ -304,6 +300,20 @@ void DMA2_Stream0_IRQHandler(void)
   /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
 
   /* USER CODE END DMA2_Stream0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 stream4 global interrupt.
+  */
+void DMA2_Stream4_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream4_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream4_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA2_Stream4_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream4_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
