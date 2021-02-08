@@ -137,8 +137,11 @@ int main(void)
   MX_UART7_Init();
   /* USER CODE BEGIN 2 */
 
-	char msg_buffers[16];
+	char msg_buffers[25];
 	uint16_t index = 0;
+
+	switchingCircuitIdle();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -151,10 +154,18 @@ int main(void)
 		HAL_GPIO_TogglePin(LED1_G_GPIO_Port, LED1_G_Pin);
 		HAL_GPIO_TogglePin(LED1_B_GPIO_Port, LED1_B_Pin);
 
-		sprintf(msg_buffers, "ahoj %hu\n", index);
-		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-				HAL_MAX_DELAY);
+		sprintf(msg_buffers, "Idle phase - %hu\n", index);
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		HAL_Delay(1000);
+
+		sprintf(msg_buffers, "Polarization phase - %hu\n", index);
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
+		HAL_Delay(1000);
+
+		sprintf(msg_buffers, "Measuring phase - %hu\n", index);
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);		¨
+		HAL_Delay(1000);
+
 		index++;
 
 
@@ -1001,6 +1012,92 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void runPolarizationSequence() {
+	//polarization phase will be ready after measurements
+	state.preparedToRunPolarizationPhase = 0;
+
+	// visualise
+	showOnLEDs(1, 1, 1);
+	//run sequnece T2 - prepare for polarization
+	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 1);
+	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
+	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
+	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
+	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 0);
+	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
+	HAL_Delay(5);
+
+	//run sequnece T3 - Polarization phase
+	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 1);
+	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
+	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
+	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 1);
+	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 0);
+	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
+	HAL_Delay(1000);
+
+	//run sequnece T4 - Coil discharge
+	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
+	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
+	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
+	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
+	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
+	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
+	HAL_Delay(10);
+
+	//run sequnece T5 - wait before measuring
+	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 1);
+	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
+	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
+	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 1);
+	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 0);
+	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
+	HAL_Delay(5);
+
+	//run sequnece T6 - measure
+	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 1);
+	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 1);
+	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 0);
+	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 1);
+	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 0);
+	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
+
+}
+
+void switchingCircuitIdle() {
+	// visualise
+	showOnLEDs(0, 0, 0);
+	// active low output enable
+	HAL_GPIO_WritePin(Switches_driver_enable_GPIO_Port,
+	Switches_driver_enable_Pin, 0);
+	//also run the sequnece T1 (isolate amplifier)
+	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
+	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
+	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
+	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
+	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 0);
+	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
+}
+
+void switchingCircuitOff() {
+	// active low output enable
+	HAL_GPIO_WritePin(Switches_driver_enable_GPIO_Port,
+	Switches_driver_enable_Pin, 1);
+	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
+	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
+	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 0);
+	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
+	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 0);
+	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
+}
+
+void showOnLEDs(uint8_t L1, uint8_t L2, uint8_t L3) {
+
+	HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, L1);
+	HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, L2);
+	HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, L3);
+}
 
 /* USER CODE END 4 */
 
