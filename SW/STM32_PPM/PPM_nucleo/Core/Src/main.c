@@ -1025,6 +1025,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		//HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 	}
 
+	if (htim->Instance == TIM6) {
+		HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+	}
+
 	// period  100 ms
 	if (htim->Instance == TIM3) {/*
 		if (state.index < PERIOD) {

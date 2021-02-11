@@ -46,6 +46,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c3;
@@ -312,8 +313,8 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
+  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T6_TRGO;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
@@ -326,7 +327,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -1113,6 +1114,9 @@ static void MX_DMA_Init(void)
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+  /* DMA2_Stream4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream4_IRQn);
 
 }
 
@@ -1306,6 +1310,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		}
 	}
 
+	if (htim->Instance == TIM6) {
+		//HAL_GPIO_TogglePin(LED1_R_GPIO_Port, LED1_R_Pin);
+	}
+
 }
 
 void delay_us(uint32_t delay_us) {
@@ -1331,7 +1339,7 @@ void measureWithInternalADC() {
 	//start ADC
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_rx1.uint16, samplesPerPeriod);
 	// start timer
-	HAL_TIM_Base_Start_IT(&htim4);
+	HAL_TIM_Base_Start_IT(&htim6);
 }
 
 void measureWithComparator() {
@@ -1430,7 +1438,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
 		HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_rx2.uint16,
 				samplesPerPeriod);
-
 	}
 
 	//second buffer is filled, send data over UART
@@ -1445,15 +1452,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 		//if freq should be measured only once, after the measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.activeMeasureTechnique = 0;
-			HAL_TIM_Base_Stop_IT(&htim4);
-
+			HAL_TIM_Base_Stop_IT(&htim6);
 		} else {
 			HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_rx1.uint16,
 					samplesPerPeriod);
 		}
-
 	}
-
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
