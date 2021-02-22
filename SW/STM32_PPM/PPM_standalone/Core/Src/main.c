@@ -1211,7 +1211,7 @@ void chooseActionByState() {
 void runPolarizationSequence() {
 
 	//polarization phase will be ready after measurements
-	//state.preparedToRunPolarizationPhase = 0;
+	state.preparedToRunPolarizationPhase = 0;
 	// visualise
 	set_LED1(1, 1, 1);
 	//run sequnece T2 - prepare for polarization
@@ -1241,7 +1241,7 @@ void runPolarizationSequence() {
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
 	delay_us(200);
 
-	//run sequnece T4 - Coil discharge
+	//run sequnece T5 - Coil discharge
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
 	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
 	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
@@ -1250,7 +1250,7 @@ void runPolarizationSequence() {
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
 	HAL_Delay(10);
 
-	//run sequnece T5 - wait before measuring
+	//run sequnece T6 - wait before measuring
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
 	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
 	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
@@ -1258,7 +1258,7 @@ void runPolarizationSequence() {
 	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
 	HAL_Delay(5);
-	//run sequnece T6 - measure
+	//run sequnece T7 - measure
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
 	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 1);
 	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 0);
@@ -1428,34 +1428,34 @@ void sendDataOverUART() {
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 	//stop the ADC when in interrupt
-	HAL_ADC_Stop_DMA(&hadc1);
+	ADC1->CR2 &= ~ADC_CR2_DMA;
+	// if function HAL_ADC_Stop_DMA(&hadc1) would be called, it wouldn't be possible to Start DMA again.
+
 	filledBuffers++;
-	// observe interval of SPI receiving
-	// Run the measurement again
 
 	//first buffer is filled
 	if (filledBuffers == 1) {
-
 		HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_rx2.uint16,
 				samplesPerPeriod);
 	}
 
 	//second buffer is filled, send data over UART
 	else if (filledBuffers == 2) {
-
 		// stop measuring
 		switchingCircuitIdle();
+		// turn off timers
+		HAL_TIM_Base_Stop_IT(&htim6);
+
 		filledBuffers = 0;
 		sendDataOverUART();
 
+
 		state.remainingMeasurements--;
-		//if freq should be measured only once, after the measurement, go to idle state
+		//if this is the last measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.activeMeasureTechnique = 0;
-			HAL_TIM_Base_Stop_IT(&htim6);
 		} else {
-			HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_rx1.uint16,
-					samplesPerPeriod);
+			state.preparedToRunPolarizationPhase = 1;
 		}
 	}
 }
@@ -1562,22 +1562,6 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 		}
 
 	}
-
-	//ToModify
-	//HAL_TIM_Base_Stop(&htim1);
-	//HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
-	//HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_2);
-
-	//send data over uart
-	/*if (hspi == &hspi1) {
-	 char msg_buffers[16];
-	 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, SET);
-	 adc = (uint16_t) 256 * buffer_rx[1] + (uint16_t) buffer_rx[2];
-	 samplesPerPeriod++;
-	 sprintf(msg_buffers, "%hu\n", adc);
-	 HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
-
-	 }*/
 }
 
 /* USER CODE END 4 */

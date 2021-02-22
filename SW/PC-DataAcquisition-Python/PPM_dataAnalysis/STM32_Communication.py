@@ -9,7 +9,7 @@ arr = np.zeros(44100)
 mode = b'#CON#'
 
 #Connect the serial port
-serial = serial.Serial("COM6", timeout=None, baudrate=2000000, xonxoff=False, rtscts=False, dsrdtr=False,bytesize=serial.EIGHTBITS, stopbits=serial.STOPBITS_ONE,parity=serial.PARITY_NONE) 
+serial = serial.Serial("COM9", timeout=None, baudrate=2000000, xonxoff=False, rtscts=False, dsrdtr=False,bytesize=serial.EIGHTBITS, stopbits=serial.STOPBITS_ONE,parity=serial.PARITY_NONE) 
 
 if serial.isOpen ():
     print ("Serial port is open")
@@ -20,7 +20,7 @@ else:
 #serial.write(mode)     # write a string
 
 #Get data from serial as fast as possible
-serial.write(b'hello')
+serial.write(b'100')
 buffer = []
 terminate = 0
 while terminate != 1:    
@@ -47,8 +47,11 @@ with open('test.csv', mode='w') as csvFile:
     index = 0
     while index < len(receivedRows):   
         csvFileWriter.writerow([index, receivedRows[index]])
-        x.append(int(float(index)))
-        y.append(int(float(receivedRows[index])))
+        try:
+            x.append(int(float(index)))
+            y.append(int(float(receivedRows[index])))
+        except:
+            print("a")
         index+=1
 
 
@@ -56,12 +59,12 @@ with open('test.csv', mode='w') as csvFile:
 plt.plot(x, y) 
 
 # naming the x axis 
-plt.xlabel('x - axis') 
+plt.xlabel('step') 
 # naming the y axis 
-plt.ylabel('y - axis') 
+plt.ylabel('Amplitude') 
 
 # giving a title to my graph 
-plt.title('My first graph!') 
+plt.title('1. Amplifier') 
 
 # function to show the plot 
 plt.show() 

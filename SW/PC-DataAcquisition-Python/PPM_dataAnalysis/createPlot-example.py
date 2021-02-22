@@ -10,12 +10,12 @@ y = [2,4,1]
 plt.plot(x, y) 
   
 # naming the x axis 
-plt.xlabel('x - axis') 
+plt.xlabel('vzorek') 
 # naming the y axis 
-plt.ylabel('y - axis') 
+plt.ylabel('amplituda') 
   
 # giving a title to my graph 
-plt.title('My first graph!') 
+plt.title('Amp1') 
   
 # function to show the plot 
 plt.show() 

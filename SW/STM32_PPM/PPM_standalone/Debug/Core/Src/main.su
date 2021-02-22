@@ -34,7 +34,7 @@ main.c:1376:6:HAL_TIM_IC_CaptureCallback	16	static
 main.c:1382:6:initState	4	static
 main.c:1390:6:sendDataOverUART	48	static
 main.c:1429:6:HAL_ADC_ConvCpltCallback	16	static
-main.c:1463:6:HAL_UART_RxCpltCallback	40	static
-main.c:1476:1:prepareForNextMeasurements	16	static
-main.c:1536:6:HAL_SPI_RxCpltCallback	16	static
-main.c:1589:6:Error_Handler	4	static
+main.c:1461:6:HAL_UART_RxCpltCallback	40	static
+main.c:1474:1:prepareForNextMeasurements	16	static
+main.c:1534:6:HAL_SPI_RxCpltCallback	16	static
+main.c:1571:6:Error_Handler	4	static
