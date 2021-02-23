@@ -62,6 +62,7 @@ TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim8;
+DMA_HandleTypeDef hdma_tim2_ch1;
 
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart7;
@@ -92,6 +93,7 @@ uint32_t samplesPerPeriod = 44100;
 uint32_t samplesTotal = 44100 * 2;
 union Buffer buffer_rx1;
 union Buffer buffer_rx2;
+uint32_t buffer_comp[8000];
 uint8_t buffer_uart_rx[3];
 
 uint32_t IC_Value1 = 0;
@@ -1109,8 +1111,12 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Stream5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
@@ -1346,12 +1352,13 @@ void measureWithComparator() {
 	// visualise
 	set_LED1(0, 0, 1);
 	// run the timer
-	HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
+	//HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
+	HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, buffer_comp, 8000);
 }
 
 //mode = 1 ... run only once, mode = 0 ... run infinity times
 void measureFrequencyWithTimer(TIM_HandleTypeDef *htim) {
-	if (firstCapturedSample == 0) {
+	/*if (firstCapturedSample == 0) {
 		IC_Value1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
 		firstCapturedSample = 1;
 	}
@@ -1359,7 +1366,7 @@ void measureFrequencyWithTimer(TIM_HandleTypeDef *htim) {
 	else if (firstCapturedSample) {
 		IC_Value2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
 		difference = IC_Value2 - IC_Value1;
-		frequency = /*HAL_RCC_GetHCLKFreq() /*/difference;
+		frequency = difference;
 		firstCapturedSample = 0;
 		sendDataOverUART();
 
@@ -1368,14 +1375,27 @@ void measureFrequencyWithTimer(TIM_HandleTypeDef *htim) {
 		if (state.remainingMeasurements == 0) {
 			state.activeMeasureTechnique = 0;
 		} else {
-			state.preparedToRunPolarizationPhase = 1;
+			//state.preparedToRunPolarizationPhase = 1;
 		}
+	}*/
+	HAL_TIM_IC_Stop_DMA(&htim2, TIM_CHANNEL_1);
+	sendDataOverUART();
+	state.remainingMeasurements--;
+	//if freq should be measured only once, after the measurement, go to idle state
+	if (state.remainingMeasurements == 0) {
+		state.activeMeasureTechnique = 0;
+	} else {
+		state.preparedToRunPolarizationPhase = 1;
 	}
+
+
+
 }
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM2) {
 		measureFrequencyWithTimer(htim);
+
 	}
 }
 
@@ -1419,9 +1439,13 @@ void sendDataOverUART() {
 		HAL_MAX_DELAY);
 	} else if (state.activeMeasureTechnique == 3) {
 		//send frequency
-		sprintf(msg_freq, "%d\n", frequency);
+		for (i = 0; i < 4000; i+=2) {
+
+		uint32_t freq= buffer_comp[i+1] - buffer_comp[i];
+		sprintf(msg_freq, "%d\n", freq);
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_freq, strlen(msg_freq),
 		HAL_MAX_DELAY);
+		}
 	}
 
 }
@@ -1473,7 +1497,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	}
 }
 
-prepareForNextMeasurements(char *receivedData) {
+void prepareForNextMeasurements(char *receivedData) {
 
 	//set measurement method
 	switch (receivedData[0]) {
