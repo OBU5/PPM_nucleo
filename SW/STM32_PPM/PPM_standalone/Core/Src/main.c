@@ -75,12 +75,18 @@ typedef enum {
 	idle, extADC, intADC, comp, extADC_and_comp, intADC_and_comp, all
 } measureTechnique;
 
-
 typedef struct States {
-	measureTechnique setMeasureTechnique;
-	measureTechnique activeMeasureTechnique;
+	uint8_t extAdcActiveState;
+	uint8_t intAdcActiveState;
+	uint8_t compActiveState;
+
+	uint8_t extAdcSetState;
+	uint8_t intAdcSetState;
+	uint8_t compSetState;
+
 	int16_t remainingMeasurements;
 	int16_t setMeasurements;
+
 	uint8_t measureTechniqueUpdated;
 	uint8_t preparedToRunPolarizationPhase;
 	uint16_t index;
@@ -95,8 +101,12 @@ union Buffer {
 uint8_t filledBuffers = 0;
 uint32_t samplesPerPeriod = 44100;
 uint32_t samplesTotal = 44100 * 2;
-union Buffer buffer_rx1;
-union Buffer buffer_rx2;
+
+union Buffer buffer_extAdc_1;
+union Buffer buffer_extAdc_2;
+union Buffer buffer_intAdc_1;
+union Buffer buffer_intAdc_2;
+
 uint32_t buffer_comp[8000];
 uint8_t receivedChars[50];
 uint8_t receivedCharIndex;
@@ -264,8 +274,7 @@ void SystemClock_Config(void) {
 	}
 	/** Initializes the CPU, AHB and APB busses clocks
 	 */
-	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
-			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
 	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
 	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -274,9 +283,7 @@ void SystemClock_Config(void) {
 	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK) {
 		Error_Handler();
 	}
-	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_TIM
-			| RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_USART3
-			| RCC_PERIPHCLK_UART5 | RCC_PERIPHCLK_UART7 | RCC_PERIPHCLK_I2C1
+	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_TIM | RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_UART5 | RCC_PERIPHCLK_UART7 | RCC_PERIPHCLK_I2C1
 			| RCC_PERIPHCLK_I2C3;
 	PeriphClkInitStruct.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
 	PeriphClkInitStruct.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
@@ -367,8 +374,7 @@ static void MX_I2C1_Init(void) {
 	}
 	/** Configure Analogue filter
 	 */
-	if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE)
-			!= HAL_OK) {
+	if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
 		Error_Handler();
 	}
 	/** Configure Digital filter
@@ -410,8 +416,7 @@ static void MX_I2C3_Init(void) {
 	}
 	/** Configure Analogue filter
 	 */
-	if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE)
-			!= HAL_OK) {
+	if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK) {
 		Error_Handler();
 	}
 	/** Configure Digital filter
@@ -539,8 +544,7 @@ static void MX_TIM1_Init(void) {
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	sConfigOC.OCMode = TIM_OCMODE_PWM2;
@@ -550,14 +554,12 @@ static void MX_TIM1_Init(void) {
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	sConfigOC.OCIdleState = TIM_OCIDLESTATE_SET;
 	sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-	if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1)
-			!= HAL_OK) {
+	if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
 		Error_Handler();
 	}
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 3000;
-	if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2)
-			!= HAL_OK) {
+	if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK) {
 		Error_Handler();
 	}
 	sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
@@ -571,8 +573,7 @@ static void MX_TIM1_Init(void) {
 	sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
 	sBreakDeadTimeConfig.Break2Filter = 0;
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-	if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	/* USER CODE BEGIN TIM1_Init 2 */
@@ -610,8 +611,7 @@ static void MX_TIM2_Init(void) {
 	}
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
@@ -664,16 +664,14 @@ static void MX_TIM3_Init(void) {
 	}
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 0;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1)
-			!= HAL_OK) {
+	if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
 		Error_Handler();
 	}
 	/* USER CODE BEGIN TIM3_Init 2 */
@@ -711,16 +709,14 @@ static void MX_TIM4_Init(void) {
 	}
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 0;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1)
-			!= HAL_OK) {
+	if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
 		Error_Handler();
 	}
 	/* USER CODE BEGIN TIM4_Init 2 */
@@ -762,8 +758,7 @@ static void MX_TIM5_Init(void) {
 	}
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	/* USER CODE BEGIN TIM5_Init 2 */
@@ -798,8 +793,7 @@ static void MX_TIM6_Init(void) {
 	}
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	/* USER CODE BEGIN TIM6_Init 2 */
@@ -856,8 +850,7 @@ static void MX_TIM8_Init(void) {
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	sConfigOC.OCMode = TIM_OCMODE_PWM2;
@@ -867,8 +860,7 @@ static void MX_TIM8_Init(void) {
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
 	sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-	if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1)
-			!= HAL_OK) {
+	if (HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1) != HAL_OK) {
 		Error_Handler();
 	}
 	sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
@@ -882,8 +874,7 @@ static void MX_TIM8_Init(void) {
 	sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
 	sBreakDeadTimeConfig.Break2Filter = 0;
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-	if (HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig)
-			!= HAL_OK) {
+	if (HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig) != HAL_OK) {
 		Error_Handler();
 	}
 	/* USER CODE BEGIN TIM8_Init 2 */
@@ -1101,10 +1092,7 @@ static void MX_GPIO_Init(void) {
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(GPIOD,
-			LED1_R_Pin | LED1_G_Pin | LED1_B_Pin | SN6505_END11_Pin | LED2_Pin
-					| LED3_Pin | LED4_Pin | Switches_driver_enable_Pin | S1_Pin
-					| S2_Pin | S3_Pin | S4_Pin | S5_Pin | S6_Pin,
-			GPIO_PIN_RESET);
+	LED1_R_Pin | LED1_G_Pin | LED1_B_Pin | SN6505_END11_Pin | LED2_Pin | LED3_Pin | LED4_Pin | Switches_driver_enable_Pin | S1_Pin | S2_Pin | S3_Pin | S4_Pin | S5_Pin | S6_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : SN6505_EN_Pin */
 	GPIO_InitStruct.Pin = SN6505_EN_Pin;
@@ -1117,10 +1105,7 @@ static void MX_GPIO_Init(void) {
 	 LED2_Pin LED3_Pin LED4_Pin Switches_driver_enable_Pin
 	 S1_Pin S2_Pin S3_Pin S4_Pin
 	 S5_Pin S6_Pin */
-	GPIO_InitStruct.Pin = LED1_R_Pin | LED1_G_Pin | LED1_B_Pin
-			| SN6505_END11_Pin | LED2_Pin | LED3_Pin | LED4_Pin
-			| Switches_driver_enable_Pin | S1_Pin | S2_Pin | S3_Pin | S4_Pin
-			| S5_Pin | S6_Pin;
+	GPIO_InitStruct.Pin = LED1_R_Pin | LED1_G_Pin | LED1_B_Pin | SN6505_END11_Pin | LED2_Pin | LED3_Pin | LED4_Pin | Switches_driver_enable_Pin | S1_Pin | S2_Pin | S3_Pin | S4_Pin | S5_Pin | S6_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -1140,32 +1125,32 @@ void chooseActionByState() {
 	// if new measurement technique was set, update remaining measurements as well
 	if (state.measureTechniqueUpdated) {
 		state.remainingMeasurements = state.setMeasurements;
-		state.activeMeasureTechnique = state.setMeasureTechnique;
+		state.extAdcActiveState = state.extAdcSetState;
+		state.intAdcActiveState = state.intAdcSetState;
+		state.compActiveState = state.compSetState;
 		state.measureTechniqueUpdated = 0;
 
 	}
-	switch (state.activeMeasureTechnique) {
-
-	case 0:
-		// Idle state
+	//idle
+	if ((state.extAdcActiveState == 0) && (state.intAdcActiveState == 0) && (state.compActiveState == 0)) {
 		set_LED1(0, 0, 0);
-		break;
-	case 1:
-		// measure with external ADC
+	}
+	//external ADC
+	else if ((state.extAdcActiveState == 1) && (state.intAdcActiveState == 0) && (state.compActiveState == 0)) {
 		runPolarizationSequence();
 		measureWithExternalADC();
-		break;
-	case 2:
-		// measure with internal ADC
+	}
+
+	//internal ADC
+	else if ((state.extAdcActiveState == 0) && (state.intAdcActiveState == 1) && (state.compActiveState == 0)) {
 		runPolarizationSequence();
 		measureWithInternalADC();
-		break;
-	case 3:
-		// measure with comparator
+	}
+
+	//comparator
+	else if ((state.extAdcActiveState == 0) && (state.intAdcActiveState == 0) && (state.compActiveState == 1)) {
 		runPolarizationSequence();
 		measureWithComparator();
-		break;
-
 	}
 }
 void runPolarizationSequence() {
@@ -1286,7 +1271,7 @@ void measureWithExternalADC() {
 	// visualise
 	set_LED1(1, 0, 0);
 	// Start SPI communication over DMA
-	HAL_SPI_Receive_DMA(&hspi1, buffer_rx1.uint8, samplesPerPeriod);
+	HAL_SPI_Receive_DMA(&hspi1, buffer_extAdc_1.uint8, samplesPerPeriod);
 	//turn on timers
 	HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);	// SPI -  MCU NSS
 	HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_2); 	// SPI -  External ADC NSS
@@ -1297,7 +1282,7 @@ void measureWithInternalADC() {
 	// visualise
 	set_LED1(0, 1, 0);
 	//start ADC
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_rx1.uint16, samplesPerPeriod);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_intAdc_1.uint16, samplesPerPeriod);
 	// start timer
 	HAL_TIM_Base_Start_IT(&htim6);
 }
@@ -1312,32 +1297,13 @@ void measureWithComparator() {
 
 //mode = 1 ... run only once, mode = 0 ... run infinity times
 void measureFrequencyWithTimer(TIM_HandleTypeDef *htim) {
-	/*if (firstCapturedSample == 0) {
-	 IC_Value1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-	 firstCapturedSample = 1;
-	 }
-
-	 else if (firstCapturedSample) {
-	 IC_Value2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-	 difference = IC_Value2 - IC_Value1;
-	 frequency = difference;
-	 firstCapturedSample = 0;
-	 sendDataOverUART();
-
-	 state.remainingMeasurements--;
-	 //if freq should be measured only once, after the measurement, go to idle state
-	 if (state.remainingMeasurements == 0) {
-	 state.activeMeasureTechnique = 0;
-	 } else {
-	 //state.preparedToRunPolarizationPhase = 1;
-	 }
-	 }*/
 	HAL_TIM_IC_Stop_DMA(&htim2, TIM_CHANNEL_1);
 	sendDataOverUART();
 	state.remainingMeasurements--;
 	//if freq should be measured only once, after the measurement, go to idle state
 	if (state.remainingMeasurements == 0) {
-		state.activeMeasureTechnique = 0;
+		state.compActiveState = 0;
+		state.compSetState = 0;
 	} else {
 		state.preparedToRunPolarizationPhase = 1;
 	}
@@ -1352,8 +1318,13 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 }
 
 void initState() {
-	state.setMeasureTechnique = 0;
-	state.activeMeasureTechnique = 0;
+	state.extAdcActiveState = 0;
+	state.extAdcSetState = 0;
+	state.intAdcActiveState = 0;
+	state.intAdcSetState = 0;
+	state.compActiveState = 0;
+	state.compSetState = 0;
+	state.setMeasurements = 0;
 	state.remainingMeasurements = 0;
 	state.preparedToRunPolarizationPhase = 0;
 	state.index = 0;
@@ -1364,39 +1335,48 @@ void sendDataOverUART() {
 	char msg_buffers[16];
 	uint16_t adc = 0;
 	int i = 0;
-	if (state.activeMeasureTechnique == extADC
-			|| state.activeMeasureTechnique == intADC) {
+	if (state.extAdcActiveState == 1) {
 		// first buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
-			adc = (uint16_t) (buffer_rx1.uint8[i])
-					+ (uint16_t) (256 * buffer_rx1.uint8[i + 1]);
+			adc = (buffer_extAdc_1.uint16[i]);
 			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers,
-					strlen(msg_buffers),
-					HAL_MAX_DELAY);
-			i++;
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
+			HAL_MAX_DELAY);
 		}
 		//second buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
-			adc = (uint16_t) (buffer_rx2.uint8[i])
-					+ (uint16_t) (256 * buffer_rx2.uint8[i + 1]);
+			adc = (buffer_extAdc_2.uint16[i]);
 			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers,
-					strlen(msg_buffers),
-					HAL_MAX_DELAY);
-			i++;
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
+			HAL_MAX_DELAY);
 		}
 		sprintf(msg_buffers, ";%hu\n", 50);
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
 		HAL_MAX_DELAY);
-	} else if (state.activeMeasureTechnique == comp) {
+	} else if (state.intAdcActiveState == 1) {
+		// first buffer
+		for (i = 0; i < samplesPerPeriod; i++) {
+			adc = (buffer_intAdc_1.uint16[i]);
+			sprintf(msg_buffers, "%hu\n", adc);
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
+			HAL_MAX_DELAY);
+		}
+		//second buffer
+		for (i = 0; i < samplesPerPeriod; i++) {
+			adc = (buffer_intAdc_2.uint16[i]);
+			sprintf(msg_buffers, "%hu\n", adc);
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
+			HAL_MAX_DELAY);
+		}
+		sprintf(msg_buffers, ";%hu\n", 50);
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
+		HAL_MAX_DELAY);
+	} else if (state.compActiveState == 1) {
 		//send frequency
 		for (i = 0; i < 4000; i += 2) {
-
 			uint32_t freq = buffer_comp[i + 1] - buffer_comp[i];
 			sprintf(msg_freq, "%d\n", freq);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_freq, strlen(msg_freq),
-			HAL_MAX_DELAY);
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_freq, strlen(msg_freq), HAL_MAX_DELAY);
 		}
 	}
 
@@ -1411,8 +1391,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 
 	//first buffer is filled
 	if (filledBuffers == 1) {
-		HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_rx2.uint16,
-				samplesPerPeriod);
+		HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_intAdc_2.uint16, samplesPerPeriod);
 	}
 
 	//second buffer is filled, send data over UART
@@ -1428,7 +1407,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 		state.remainingMeasurements--;
 		//if this is the last measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
-			state.activeMeasureTechnique = 0;
+			state.intAdcActiveState = 0;
+			state.intAdcSetState = 0;
 		} else {
 			state.preparedToRunPolarizationPhase = 1;
 		}
@@ -1445,72 +1425,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	}
 }
 
-void prepareForNextMeasurements(char *receivedData) {
-
-	//set measurement method
-	switch (receivedData[0]) {
-	case '0':
-		state.setMeasureTechnique = 0;
-		break;
-	case '1':
-		state.setMeasureTechnique = 1;
-		break;
-	case '2':
-		state.setMeasureTechnique = 2;
-		break;
-	case '3':
-		state.setMeasureTechnique = 3;
-		break;
-	default:
-		state.setMeasureTechnique = 0;
-		break;
-	}
-
-	//set number of measurements
-	switch (receivedData[1]) {
-	case '0':
-		state.setMeasurements = -1;
-		break;
-	case '1':
-		state.setMeasurements = 1;
-		break;
-	case '2':
-		state.setMeasurements = 2;
-		break;
-	case '3':
-		state.setMeasurements = 3;
-		break;
-	case '4':
-		state.setMeasurements = 4;
-		break;
-	case '5':
-		state.setMeasurements = 5;
-		break;
-	case '6':
-		state.setMeasurements = 6;
-		break;
-	case '7':
-		state.setMeasurements = 7;
-		break;
-	case '8':
-		state.setMeasurements = 8;
-		break;
-	case '9':
-		state.setMeasurements = 9;
-		break;
-	default:
-		state.setMeasurements = 1;
-		break;
-	}
-	state.preparedToRunPolarizationPhase = 1;
-}
-
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 	filledBuffers++;
 
 	//first buffer is filled
 	if (filledBuffers == 1) {
-		HAL_SPI_Receive_DMA(&hspi1, buffer_rx2.uint8, samplesPerPeriod);
+		HAL_SPI_Receive_DMA(&hspi1, buffer_extAdc_2.uint8, samplesPerPeriod);
 	}
 
 	//second buffer is filled, send data over UART
@@ -1528,7 +1448,8 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 		state.remainingMeasurements--;
 		//if this is the last measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
-			state.activeMeasureTechnique = 0;
+			state.extAdcActiveState = 0;
+			state.extAdcSetState = 0;
 		} else {
 			state.preparedToRunPolarizationPhase = 1;
 		}
@@ -1538,13 +1459,12 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 
 int parseText() {
 	//check if there is two times character * indicating complete command
-	uint8_t
-	i,indexOfFirstSpecialChar , indexOfSecondSpecialChar, specialCharCount = 0;
+	uint8_t i, indexOfFirstSpecialChar, indexOfSecondSpecialChar, specialCharCount = 0;
 	char msg_buffers[50];
 	char receivedCommand[50];
-	for(i = 0; i<strlen(receivedCommand); i++){
-		msg_buffers[i] = '/0';
-		receivedCommand[i] = '/0';
+	for (i = 0; i < strlen(receivedCommand); i++) {
+		msg_buffers[i] = '\0';
+		receivedCommand[i] = '\0';
 	}
 
 	for (i = 0; i < strlen(receivedChars); i++) {
@@ -1558,21 +1478,19 @@ int parseText() {
 		}
 	}
 	if (specialCharCount == 1) {
-		sprintf(msg_buffers,
-				"The command is not complete. second * is missing\n");
+		sprintf(msg_buffers, "The command is not complete. second * is missing\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-				HAL_MAX_DELAY);
+		HAL_MAX_DELAY);
 		return 0;
 
 	} else if (specialCharCount == 2) {
 		sprintf(msg_buffers, "New state was set\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-				HAL_MAX_DELAY);
+		HAL_MAX_DELAY);
 	} else if (specialCharCount > 2) {
-		sprintf(msg_buffers,
-				"The command is wrong. too many * were received\n");
+		sprintf(msg_buffers, "The command is wrong. too many * were received\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-				HAL_MAX_DELAY);
+		HAL_MAX_DELAY);
 		return -1; // receivedChars needs to be cleared
 		//if no bracket was received, it's still ok
 	} else {
@@ -1580,14 +1498,11 @@ int parseText() {
 	}
 
 	// get string between special chars
-	strncpy(receivedCommand, receivedChars + indexOfFirstSpecialChar + 1, indexOfSecondSpecialChar - indexOfFirstSpecialChar-1);
-	receivedCommand[indexOfSecondSpecialChar - indexOfFirstSpecialChar] = '\0';
-
-
+	strncpy(receivedCommand, receivedChars + indexOfFirstSpecialChar + 1, indexOfSecondSpecialChar - indexOfFirstSpecialChar - 1);
+	receivedCommand[indexOfSecondSpecialChar - indexOfFirstSpecialChar-1] = '\0';
 
 	//if specialCharCount == 2
 	// Extract the first token - command
-
 
 	char *command = strtok(receivedCommand, ":");
 	char *method = strtok(NULL, ":");
@@ -1595,34 +1510,35 @@ int parseText() {
 
 	//*IDN*
 	if (strcmp(command, "IDN") == 0) {
-		sprintf(msg_buffers,
-				"This is proton precession magnetometer, ver. 1\n");
+		sprintf(msg_buffers, "This is proton precession magnetometer, ver. 1\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-				HAL_MAX_DELAY);
+		HAL_MAX_DELAY);
 	}
 	//*MEAS:method:count*
 	else if (strcmp(command, "MEAS") == 0) {
 
 		if (strcmp(method, "extADC") == 0) {
-			state.setMeasureTechnique = extADC;
-			state.remainingMeasurements = 10;
+			state.extAdcSetState = 1;
+			state.setMeasurements = 1;
 			state.preparedToRunPolarizationPhase = 1;
-		}
-		else if (strcmp(method, "intADC") == 0) {
+			state.measureTechniqueUpdated = 1;
+		} else if (strcmp(method, "intADC") == 0) {
 
-			state.setMeasureTechnique = intADC;
-			state.remainingMeasurements = 10;
+			state.intAdcSetState = 1;
+			state.setMeasurements = 1;
 			state.preparedToRunPolarizationPhase = 1;
-		}
-		else if (strcmp(method, "comp") == 0) {
-			state.setMeasureTechnique = comp;
-			state.remainingMeasurements = 10;
+			state.measureTechniqueUpdated = 1;
+		} else if (strcmp(method, "comp") == 0) {
+			state.compSetState = 1;
+			state.setMeasurements = 1;
 			state.preparedToRunPolarizationPhase = 1;
-		}
-		else /* default: */
+			state.measureTechniqueUpdated = 1;
+		} else /* default: */
 		{
-		}
 
+		}
+		if (strcmp(count, "INF") == 0) {
+		}
 
 	}
 	/* more else if clauses */
@@ -1630,8 +1546,8 @@ int parseText() {
 	{
 	}
 	receivedCharIndex = 0;
-	for(i = 0; i<strlen(receivedChars); i++){
-		receivedChars[i] = '/0';
+	for (i = 0; i < strlen(receivedChars); i++) {
+		receivedChars[i] = '\0';
 	}
 }
 
