@@ -71,9 +71,6 @@ UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-typedef enum {
-	idle, extADC, intADC, comp, extADC_and_comp, intADC_and_comp, all
-} measureTechnique;
 
 typedef struct States {
 	uint8_t extAdcActiveState;
@@ -1299,7 +1296,10 @@ void measureWithComparator() {
 void measureFrequencyWithTimer(TIM_HandleTypeDef *htim) {
 	HAL_TIM_IC_Stop_DMA(&htim2, TIM_CHANNEL_1);
 	sendDataOverUART();
-	state.remainingMeasurements--;
+	// -1 indicates infinity measurements
+	if (state.remainingMeasurements != -1) {
+		state.remainingMeasurements--;
+	}
 	//if freq should be measured only once, after the measurement, go to idle state
 	if (state.remainingMeasurements == 0) {
 		state.compActiveState = 0;
@@ -1404,8 +1404,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 		filledBuffers = 0;
 		sendDataOverUART();
 
-		state.remainingMeasurements--;
-		//if this is the last measurement, go to idle state
+		// -1 indicates infinity measurements
+		if (state.remainingMeasurements != -1) {
+			state.remainingMeasurements--;
+		}		//if this is the last measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.intAdcActiveState = 0;
 			state.intAdcSetState = 0;
@@ -1445,7 +1447,11 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 		filledBuffers = 0;
 		sendDataOverUART();
 
-		state.remainingMeasurements--;
+
+		// -1 indicates infinity measurements
+		if (state.remainingMeasurements != -1) {
+			state.remainingMeasurements--;
+		}
 		//if this is the last measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.extAdcActiveState = 0;
@@ -1499,7 +1505,7 @@ int parseText() {
 
 	// get string between special chars
 	strncpy(receivedCommand, receivedChars + indexOfFirstSpecialChar + 1, indexOfSecondSpecialChar - indexOfFirstSpecialChar - 1);
-	receivedCommand[indexOfSecondSpecialChar - indexOfFirstSpecialChar-1] = '\0';
+	receivedCommand[indexOfSecondSpecialChar - indexOfFirstSpecialChar - 1] = '\0';
 
 	//if specialCharCount == 2
 	// Extract the first token - command
@@ -1519,18 +1525,15 @@ int parseText() {
 
 		if (strcmp(method, "extADC") == 0) {
 			state.extAdcSetState = 1;
-			state.setMeasurements = 1;
 			state.preparedToRunPolarizationPhase = 1;
 			state.measureTechniqueUpdated = 1;
 		} else if (strcmp(method, "intADC") == 0) {
 
 			state.intAdcSetState = 1;
-			state.setMeasurements = 1;
 			state.preparedToRunPolarizationPhase = 1;
 			state.measureTechniqueUpdated = 1;
 		} else if (strcmp(method, "comp") == 0) {
 			state.compSetState = 1;
-			state.setMeasurements = 1;
 			state.preparedToRunPolarizationPhase = 1;
 			state.measureTechniqueUpdated = 1;
 		} else /* default: */
@@ -1538,6 +1541,10 @@ int parseText() {
 
 		}
 		if (strcmp(count, "INF") == 0) {
+			state.setMeasurements = -1;
+		}
+		else{
+			state.setMeasurements = atoi(count);
 		}
 
 	}
