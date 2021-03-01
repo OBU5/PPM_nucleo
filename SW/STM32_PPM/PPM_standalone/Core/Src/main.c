@@ -26,6 +26,8 @@
 #include "float.h"
 #include "string.h"
 #include "stdio.h"
+#include <stdlib.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,18 +38,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define TIMER  TIM4
-
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
-  (byte & 0x80 ? '1' : '0'), \
-  (byte & 0x40 ? '1' : '0'), \
-  (byte & 0x20 ? '1' : '0'), \
-  (byte & 0x10 ? '1' : '0'), \
-  (byte & 0x08 ? '1' : '0'), \
-  (byte & 0x04 ? '1' : '0'), \
-  (byte & 0x02 ? '1' : '0'), \
-  (byte & 0x01 ? '1' : '0')
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -237,16 +227,15 @@ int main(void) {
 		parseText();
 
 		// if new measurement technique was updated - change state regarding to the update
-		if (state.measureTechniqueUpdated && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend
-				&& !state.compReadyToSend) {
+		if (stateCanBeUpdated()) {
 			updateState();
 		}
-		if (state.preparedToRunPolarizationPhase && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend
-				&& !state.compReadyToSend) {
+		//
+		if (measurementCanRun()) {
 			runMeasurementMethod();
 		}
-		//idle state - if no method is active and there are no data to be sent
-		else if (!state.extAdcActiveState && !state.intAdcActiveState && !state.compActiveState && !state.extAdcReadyToSend && !state.intAdcReadyToSend && !state.compReadyToSend) {
+		// idle state - if no method is active and there are no data to be sent
+		else if (stateIsIdle()) {
 			set_LED1(0, 0, 0);
 		} else {
 			sendMeasuredData();
@@ -255,6 +244,19 @@ int main(void) {
 	}
 
 	/* USER CODE END 3 */
+}
+
+int stateCanBeUpdated() {
+	return (state.measureTechniqueUpdated && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend && !state.compReadyToSend);
+}
+
+int measurementCanRun() {
+	return (state.preparedToRunPolarizationPhase && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend
+			&& !state.compReadyToSend);
+}
+
+int stateIsIdle() {
+	return (!state.extAdcActiveState && !state.intAdcActiveState && !state.compActiveState && !state.extAdcReadyToSend && !state.intAdcReadyToSend && !state.compReadyToSend);
 }
 
 /**
@@ -1111,8 +1113,7 @@ static void MX_GPIO_Init(void) {
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(GPIOD,
-			LED1_R_Pin | LED1_G_Pin | LED1_B_Pin | SN6505_END11_Pin | LED2_Pin | LED3_Pin | LED4_Pin | Switches_driver_enable_Pin | S1_Pin | S2_Pin | S3_Pin | S4_Pin | S5_Pin | S6_Pin,
-			GPIO_PIN_RESET);
+	LED1_R_Pin | LED1_G_Pin | LED1_B_Pin | SN6505_END11_Pin | LED2_Pin | LED3_Pin | LED4_Pin | Switches_driver_enable_Pin | S1_Pin | S2_Pin | S3_Pin | S4_Pin | S5_Pin | S6_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin : SN6505_EN_Pin */
 	GPIO_InitStruct.Pin = SN6505_EN_Pin;
@@ -1379,10 +1380,13 @@ void sendDataOverUART() {
 	if (state.extAdcActiveState == 1) {
 		// first buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
-			adc = (buffer_extAdc_1.uint16[i]);
-			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-			HAL_MAX_DELAY);
+			adc = (buffer_extAdc_1.uint8[i]);
+			sprintf(msg_buffers, "%c\n", adc);
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
+			i++;
+			adc = (buffer_extAdc_1.uint8[i]);
+			sprintf(msg_buffers, "%c\n", adc);
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		}
 		//second buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
@@ -1524,7 +1528,9 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 }
 
 int parseText() {
+	//-------------------------------------------------------------------------------------
 	//check if there is two times character * indicating complete command
+	//-------------------------------------------------------------------------------------
 	uint8_t i, indexOfFirstSpecialChar, indexOfSecondSpecialChar, specialCharCount = 0;
 	char msg_buffers[80];
 	char receivedCommand[50];
@@ -1545,25 +1551,28 @@ int parseText() {
 			specialCharCount++;
 		}
 	}
+	//received message is not complete
 	if (specialCharCount == 1) {
-		set_LED1(1, 0, 0);
 		return 0;
-	} else if (specialCharCount == 2) {
-		sprintf(msg_buffers, "New state was set\n");
+	}
+	// received message is complete ->
+	else if (specialCharCount == 2) {
+		sprintf(msg_buffers, "*INFO:Message accepted*\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
-	} else if (specialCharCount > 2) {
-		set_LED1(1, 0, 0);
+	}
+	//received message is wrong -> delete it
+	else if (specialCharCount > 2) {
 		clearReceivedCharsBuffer(); // receivedChars needs to be cleared
+		return 0;
 	} else {
 		return 0;
 	}
 
-	// get string between special chars
+	//-------------------------------------------------------------------------------------
+	// get string between special chars (Only if specialCharCount == 2)
+	//-------------------------------------------------------------------------------------
 	strncpy(receivedCommand, receivedChars + indexOfFirstSpecialChar + 1, indexOfSecondSpecialChar - indexOfFirstSpecialChar - 1);
 	receivedCommand[indexOfSecondSpecialChar - indexOfFirstSpecialChar - 1] = '\0';
-
-	//if specialCharCount == 2
-	// Extract the first token - command
 
 	char *command = strtok(receivedCommand, ":");
 	char *method = strtok(NULL, ":");
@@ -1571,7 +1580,7 @@ int parseText() {
 
 	//*IDN*
 	if (strcmp(command, "IDN") == 0) {
-		sprintf(msg_buffers, "This is proton precession magnetometer, ver. 1\n");
+		sprintf(msg_buffers, "This is proton precession magnetometer - version 1\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
 		HAL_MAX_DELAY);
 	}
@@ -1579,11 +1588,16 @@ int parseText() {
 	if (strcmp(command, "SET") == 0) {
 		//polarization time
 		if (strcmp(method, "polT") == 0) {
+			//convert received string to integer
 			polarizationTime = atoi(count);
-			if (count < 5000) {
+
+			//min = 5 seconds
+			if (polarizationTime < 5000) {
 				polarizationTime = 5000;
-			} else if (count > 20000) {
-				polarizationTime = 20000;
+			}
+			//max = 60 seconds
+			else if (polarizationTime > 60000) {
+				polarizationTime = 60000;
 			}
 		}
 	}
@@ -1675,12 +1689,22 @@ void sendMeasuredData() {
 		sprintf(msg_buffers, "*extADC:\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
 		HAL_MAX_DELAY);
+
 		// first buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
 			adc = (buffer_extAdc_1.uint16[i]);
 			sprintf(msg_buffers, "%hu\n", adc);
 			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
 			HAL_MAX_DELAY);
+			/* to sand 16 bits of inteeger instead of its string representation
+			 *
+			 adc = (buffer_extAdc_1.uint8[i]);
+			 sprintf(msg_buffers, "%c", adc);
+			 HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
+			 i++;
+			 adc = (buffer_extAdc_1.uint8[i]);
+			 sprintf(msg_buffers, "%c\n", adc);
+			 HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);*/
 		}
 		//second buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
