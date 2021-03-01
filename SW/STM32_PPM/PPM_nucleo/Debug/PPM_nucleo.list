@@ -39,9 +39,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  17 .debug_line   0000fedf  00000000  00000000  0006746b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    00111ae0  00000000  00000000  0007734a  2**0
+ 18 .debug_str    00111ae1  00000000  00000000  0007734a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  00188e2a  2**0
+ 19 .comment      0000007b  00000000  00000000  00188e2b  2**0
                   CONTENTS, READONLY
  20 .debug_frame  00005d84  00000000  00000000  00188ea8  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -525,8 +525,8 @@ int main(void)
  8000664:	79db      	ldrb	r3, [r3, #7]
  8000666:	2b00      	cmp	r3, #0
  8000668:	d0fb      	beq.n	8000662 <main+0x42>
-			chooseActionByState();
- 800066a:	f000 ff27 	bl	80014bc <chooseActionByState>
+			runMeasurementMethod();
+ 800066a:	f000 ff27 	bl	80014bc <runMeasurementMethod>
 		if (state.preparedToRunPolarizationPhase) {
  800066e:	e7f8      	b.n	8000662 <main+0x42>
  8000670:	20000578 	.word	0x20000578
@@ -2894,43 +2894,43 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
  80014b8:	46bd      	mov	sp, r7
  80014ba:	bd80      	pop	{r7, pc}
 
-080014bc <chooseActionByState>:
+080014bc <runMeasurementMethod>:
 	state.remainingMeasurements = 0;
 	state.preparedToRunPolarizationPhase = 0;
 	state.index = 0;
 }
 
-void chooseActionByState() {
+void runMeasurementMethod() {
  80014bc:	b580      	push	{r7, lr}
  80014be:	af00      	add	r7, sp, #0
 	// if new measurement technique was set, update remaining measurements as well
 	if (state.measureTechniqueUpdated) {
- 80014c0:	4b1b      	ldr	r3, [pc, #108]	; (8001530 <chooseActionByState+0x74>)
+ 80014c0:	4b1b      	ldr	r3, [pc, #108]	; (8001530 <runMeasurementMethod+0x74>)
  80014c2:	799b      	ldrb	r3, [r3, #6]
  80014c4:	2b00      	cmp	r3, #0
- 80014c6:	d00b      	beq.n	80014e0 <chooseActionByState+0x24>
+ 80014c6:	d00b      	beq.n	80014e0 <runMeasurementMethod+0x24>
 		state.remainingMeasurements = state.setMeasurements;
- 80014c8:	4b19      	ldr	r3, [pc, #100]	; (8001530 <chooseActionByState+0x74>)
+ 80014c8:	4b19      	ldr	r3, [pc, #100]	; (8001530 <runMeasurementMethod+0x74>)
  80014ca:	f9b3 2004 	ldrsh.w	r2, [r3, #4]
- 80014ce:	4b18      	ldr	r3, [pc, #96]	; (8001530 <chooseActionByState+0x74>)
+ 80014ce:	4b18      	ldr	r3, [pc, #96]	; (8001530 <runMeasurementMethod+0x74>)
  80014d0:	805a      	strh	r2, [r3, #2]
 		state.activeMeasureTechnique = state.setMeasureTechnique;
- 80014d2:	4b17      	ldr	r3, [pc, #92]	; (8001530 <chooseActionByState+0x74>)
+ 80014d2:	4b17      	ldr	r3, [pc, #92]	; (8001530 <runMeasurementMethod+0x74>)
  80014d4:	781a      	ldrb	r2, [r3, #0]
- 80014d6:	4b16      	ldr	r3, [pc, #88]	; (8001530 <chooseActionByState+0x74>)
+ 80014d6:	4b16      	ldr	r3, [pc, #88]	; (8001530 <runMeasurementMethod+0x74>)
  80014d8:	705a      	strb	r2, [r3, #1]
 		state.measureTechniqueUpdated = 0;
- 80014da:	4b15      	ldr	r3, [pc, #84]	; (8001530 <chooseActionByState+0x74>)
+ 80014da:	4b15      	ldr	r3, [pc, #84]	; (8001530 <runMeasurementMethod+0x74>)
  80014dc:	2200      	movs	r2, #0
  80014de:	719a      	strb	r2, [r3, #6]
 
 	}
 	switch (state.activeMeasureTechnique) {
- 80014e0:	4b13      	ldr	r3, [pc, #76]	; (8001530 <chooseActionByState+0x74>)
+ 80014e0:	4b13      	ldr	r3, [pc, #76]	; (8001530 <runMeasurementMethod+0x74>)
  80014e2:	785b      	ldrb	r3, [r3, #1]
  80014e4:	2b03      	cmp	r3, #3
- 80014e6:	d820      	bhi.n	800152a <chooseActionByState+0x6e>
- 80014e8:	a201      	add	r2, pc, #4	; (adr r2, 80014f0 <chooseActionByState+0x34>)
+ 80014e6:	d820      	bhi.n	800152a <runMeasurementMethod+0x6e>
+ 80014e8:	a201      	add	r2, pc, #4	; (adr r2, 80014f0 <runMeasurementMethod+0x34>)
  80014ea:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
  80014ee:	bf00      	nop
  80014f0:	08001501 	.word	0x08001501
@@ -2946,7 +2946,7 @@ void chooseActionByState() {
  8001504:	2000      	movs	r0, #0
  8001506:	f000 f815 	bl	8001534 <showOnLEDs>
 		break;
- 800150a:	e00e      	b.n	800152a <chooseActionByState+0x6e>
+ 800150a:	e00e      	b.n	800152a <runMeasurementMethod+0x6e>
 	case 1:
 		// measure with external ADC
 		runPolarizationSequence();
@@ -2954,7 +2954,7 @@ void chooseActionByState() {
 		measureWithExternalADC();
  8001510:	f000 f832 	bl	8001578 <measureWithExternalADC>
 		break;
- 8001514:	e009      	b.n	800152a <chooseActionByState+0x6e>
+ 8001514:	e009      	b.n	800152a <runMeasurementMethod+0x6e>
 	case 2:
 		// measure with internal ADC
 		runPolarizationSequence();
@@ -2962,7 +2962,7 @@ void chooseActionByState() {
 		measureWithInternalADC();
  800151a:	f000 f855 	bl	80015c8 <measureWithInternalADC>
 		break;
- 800151e:	e004      	b.n	800152a <chooseActionByState+0x6e>
+ 800151e:	e004      	b.n	800152a <runMeasurementMethod+0x6e>
 	case 3:
 		// measure with comparator
 		runPolarizationSequence();

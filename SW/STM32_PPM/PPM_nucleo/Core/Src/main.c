@@ -177,7 +177,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		if (state.preparedToRunPolarizationPhase) {
-			chooseActionByState();
+			runMeasurementMethod();
 		}
 	}
   /* USER CODE END 3 */
@@ -1092,7 +1092,7 @@ void initState() {
 	state.index = 0;
 }
 
-void chooseActionByState() {
+void runMeasurementMethod() {
 	// if new measurement technique was set, update remaining measurements as well
 	if (state.measureTechniqueUpdated) {
 		state.remainingMeasurements = state.setMeasurements;
