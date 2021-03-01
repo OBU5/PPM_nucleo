@@ -246,19 +246,6 @@ int main(void) {
 	/* USER CODE END 3 */
 }
 
-int stateCanBeUpdated() {
-	return (state.measureTechniqueUpdated && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend && !state.compReadyToSend);
-}
-
-int measurementCanRun() {
-	return (state.preparedToRunPolarizationPhase && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend
-			&& !state.compReadyToSend);
-}
-
-int stateIsIdle() {
-	return (!state.extAdcActiveState && !state.intAdcActiveState && !state.compActiveState && !state.extAdcReadyToSend && !state.intAdcReadyToSend && !state.compReadyToSend);
-}
-
 /**
  * @brief System Clock Configuration
  * @retval None
@@ -1149,13 +1136,13 @@ void runMeasurementMethod() {
 		runPolarizationSequence();
 
 		if (state.intAdcActiveState == 1) {
-			measureWithInternalADC();
+			measureWithIntADC();
 		}
 		if (state.extAdcActiveState == 1) {
-			measureWithExternalADC();
+			measureWithExtADC();
 		}
 		if (state.compActiveState == 1) {
-			measureWithComparator();
+			measureWithComp();
 		}
 	}
 }
@@ -1268,10 +1255,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			timeIndex -= 10;
 		}
 	}
-
-	if (htim->Instance == TIM6) {
-	}
-
 }
 
 void delay_us(uint32_t delay_us) {
@@ -1286,8 +1269,8 @@ void delay_ms(uint32_t delay_us) {
 		;
 }
 
-void measureWithExternalADC() {
-	// visualise
+void measureWithExtADC() {
+	// visualise with green color
 	set_LED1(0, 1, 0);
 	// Start SPI communication over DMA
 	HAL_SPI_Receive_DMA(&hspi1, buffer_extAdc_1.uint8, samplesPerPeriod);
@@ -1299,8 +1282,8 @@ void measureWithExternalADC() {
 	state.extAdcMeasuring = 1;
 }
 
-void measureWithInternalADC() {
-	// visualise
+void measureWithIntADC() {
+	// visualise with green color
 	set_LED1(0, 1, 0);
 	//start ADC
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_intAdc_1.uint16, samplesPerPeriod);
@@ -1310,189 +1293,32 @@ void measureWithInternalADC() {
 	state.intAdcMeasuring = 1;
 }
 
-void measureWithComparator() {
-	// visualise
+void measureWithComp() {
+	// visualise with green color
 	set_LED1(0, 1, 0);
-	// run the timer
-	//HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
+	// run the timer 4001 - 2 seconds for 2 kHz
 	HAL_TIM_IC_Start_DMA(&htim2, TIM_CHANNEL_1, buffer_comp, 4001);
 	set_LED4(1);
 	state.compMeasuring = 1;
-
 }
 
-//mode = 1 ... run only once, mode = 0 ... run infinity times
-void measureFrequencyWithTimer(TIM_HandleTypeDef *htim) {
-	HAL_TIM_IC_Stop_DMA(&htim2, TIM_CHANNEL_1);
-	set_LED4(0);
-	state.compReadyToSend = 1;
-	state.compMeasuring = 0;
+void measurementWithExtAdcDone() {
 
-	//only if all measurements were done
-	if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
-		switchingCircuitIdle();
-		// -1 indicates infinity measurements
-		if (state.remainingMeasurements != -1) {
-			state.remainingMeasurements--;
-		}
-	}
-	//if freq should be measured only once, after the measurement, go to idle state
-	if (state.remainingMeasurements == 0) {
-		state.compActiveState = 0;
-		state.compSetState = 0;
-	} else {
-		if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
-			state.preparedToRunPolarizationPhase = 1;
-		}
-	}
-}
-
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM2) {
-		measureFrequencyWithTimer(htim);
-	}
-}
-
-void initState() {
-	state.extAdcReadyToSend = 0;
-	state.intAdcReadyToSend = 0;
-	state.compReadyToSend = 0;
-
-	state.extAdcActiveState = 0;
-	state.extAdcSetState = 0;
-	state.intAdcActiveState = 0;
-
-	state.intAdcSetState = 0;
-	state.compActiveState = 0;
-	state.compSetState = 0;
-
-	state.setMeasurements = 0;
-	state.remainingMeasurements = 0;
-	state.preparedToRunPolarizationPhase = 0;
-	state.index = 0;
-}
-
-void sendDataOverUART() {
-	char msg_freq[16];
-	char msg_buffers[16];
-	uint16_t adc = 0;
-	int i = 0;
-	if (state.extAdcActiveState == 1) {
-		// first buffer
-		for (i = 0; i < samplesPerPeriod; i++) {
-			adc = (buffer_extAdc_1.uint8[i]);
-			sprintf(msg_buffers, "%c\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
-			i++;
-			adc = (buffer_extAdc_1.uint8[i]);
-			sprintf(msg_buffers, "%c\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
-		}
-		//second buffer
-		for (i = 0; i < samplesPerPeriod; i++) {
-			adc = (buffer_extAdc_2.uint16[i]);
-			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-			HAL_MAX_DELAY);
-		}
-		sprintf(msg_buffers, ";%hu\n", 50);
-		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-		HAL_MAX_DELAY);
-	} else if (state.intAdcActiveState == 1) {
-		// first buffer
-		for (i = 0; i < samplesPerPeriod; i++) {
-			adc = (buffer_intAdc_1.uint16[i]);
-			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-			HAL_MAX_DELAY);
-		}
-		//second buffer
-		for (i = 0; i < samplesPerPeriod; i++) {
-			adc = (buffer_intAdc_2.uint16[i]);
-			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-			HAL_MAX_DELAY);
-		}
-		sprintf(msg_buffers, ";%hu\n", 50);
-		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
-		HAL_MAX_DELAY);
-	} else if (state.compActiveState == 1) {
-		//send frequency
-		for (i = 0; i < 3999; i++) {
-			uint32_t freq = buffer_comp[i + 1] - buffer_comp[i];
-			sprintf(msg_freq, "%d\n", freq);
-			HAL_UART_Transmit(&huart3, (uint8_t*) msg_freq, strlen(msg_freq), HAL_MAX_DELAY);
-		}
-	}
-
-}
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-	//stop the ADC when in interrupt
-	ADC1->CR2 &= ~ADC_CR2_DMA;
-	// if function HAL_ADC_Stop_DMA(&hadc1) would be called, it wouldn't be possible to Start DMA again.
-
-	filledBuffersIntADC++;
-
-	//first buffer is filled
-	if (filledBuffersIntADC == 1) {
-		HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_intAdc_2.uint16, samplesPerPeriod);
-	}
-
-	//second buffer is filled, send data over UART
-	else if (filledBuffersIntADC == 2) {
-		// stop measuring
-
-		set_LED3(0);
-		state.intAdcReadyToSend = 1;
-		state.intAdcMeasuring = 0;
-		// turn off timers
-		HAL_TIM_Base_Stop_IT(&htim6);
-
-		filledBuffersIntADC = 0;
-		//only if all measurements were done
-		if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
-			switchingCircuitIdle();
-			// -1 indicates infinity measurements
-			if (state.remainingMeasurements != -1) {
-				state.remainingMeasurements--;
-			}
-		}
-		//if this is the last measurement, go to idle state
-		if (state.remainingMeasurements == 0) {
-			state.intAdcActiveState = 0;
-			state.intAdcSetState = 0;
-		} else {
-			if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
-				state.preparedToRunPolarizationPhase = 1;
-			}
-		}
-	}
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart->Instance == USART3) {
-		HAL_UART_Receive_IT(&huart3, buffer_uart_rx, 1);
-		state.measureTechniqueUpdated = 1;
-		//prepareForNextMeasurements(buffer_uart_rx);
-		receivedChars[(receivedCharIndex++) % 50] = buffer_uart_rx[0];
-	}
-}
-
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 	filledBuffersExtADC++;
 
 	// turn off timers
 	HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Stop_IT(&htim8, TIM_CHANNEL_1);
+
+	//stop DMA
 	SPI1->CR2 &= ~SPI_CR2_RXDMAEN;
 
 	//first buffer is filled
 	if (filledBuffersExtADC == 1) {
-
+		//start DMA again with second buffer
 		HAL_SPI_Receive_DMA(&hspi1, buffer_extAdc_2.uint8, samplesPerPeriod);
-
+		// turn on timers
 		HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
 		HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_2);
 		HAL_TIM_PWM_Start_IT(&htim8, TIM_CHANNEL_1);
@@ -1507,23 +1333,146 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
 
 		filledBuffersExtADC = 0;
 
-		//only if all measurements were done
-		if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
-			switchingCircuitIdle();
-			// -1 indicates infinity measurements
-			if (state.remainingMeasurements != -1) {
-				state.remainingMeasurements--;
-			}
-		}
+		goToIdleAfterMeasurement();
 		//if this is the last measurement, go to idle state
 		if (state.remainingMeasurements == 0) {
 			state.extAdcActiveState = 0;
 			state.extAdcSetState = 0;
 		} else {
-			if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
-				state.preparedToRunPolarizationPhase = 1;
-			}
+			prepareForPolarizationPhaseIfPossible();
 		}
+	}
+}
+
+void measurementWithIntAdcDone() {
+	//stop the ADC when in interrupt
+	//if function HAL_ADC_Stop_DMA(&hadc1) would be called, it wouldn't be possible to Start DMA again.
+	ADC1->CR2 &= ~ADC_CR2_DMA;
+
+	filledBuffersIntADC++;
+
+	//first buffer is filled
+	if (filledBuffersIntADC == 1) {
+		HAL_ADC_Start_DMA(&hadc1, (uint32_t*) &buffer_intAdc_2.uint16, samplesPerPeriod);
+	}
+
+	//second buffer is filled, stop measuring
+	else if (filledBuffersIntADC == 2) {
+		// turn off timer
+		HAL_TIM_Base_Stop_IT(&htim6);
+
+		set_LED3(0);
+		filledBuffersIntADC = 0;
+		state.intAdcReadyToSend = 1;
+		state.intAdcMeasuring = 0;
+
+		goToIdleAfterMeasurement();
+
+		//if this is the last measurement, go to idle state
+		if (state.remainingMeasurements == 0) {
+			state.intAdcActiveState = 0;
+			state.intAdcSetState = 0;
+		}
+		// if there are remaning
+		else {
+			prepareForPolarizationPhaseIfPossible();
+		}
+	}
+}
+
+void measurementWithCompDone(TIM_HandleTypeDef *htim) {
+	HAL_TIM_IC_Stop_DMA(&htim2, TIM_CHANNEL_1);
+	set_LED4(0);
+	state.compReadyToSend = 1;
+	state.compMeasuring = 0;
+
+	goToIdleAfterMeasurement();
+
+	//if freq should be measured only once, after the measurement, go to idle state
+	if (state.remainingMeasurements == 0) {
+		state.compActiveState = 0;
+		state.compSetState = 0;
+	} else {
+		prepareForPolarizationPhaseIfPossible();
+	}
+}
+
+void goToIdleAfterMeasurement() {
+	//only if all measurements were done
+	if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
+		switchingCircuitIdle();
+		// -1 indicates infinity measurements
+		if (state.remainingMeasurements != -1) {
+			state.remainingMeasurements--;
+		}
+	}
+}
+
+void prepareForPolarizationPhaseIfPossible() {
+	if ((state.extAdcMeasuring == 0) && (state.intAdcMeasuring == 0) && (state.compMeasuring == 0)) {
+		state.preparedToRunPolarizationPhase = 1;
+	}
+}
+
+void initState() {
+	state.extAdcReadyToSend = 0;
+	state.intAdcReadyToSend = 0;
+	state.compReadyToSend = 0;
+
+	state.extAdcActiveState = 0;
+	state.extAdcSetState = 0;
+	state.intAdcActiveState = 0;
+
+
+	state.extAdcMeasuring = 0;
+	state.intAdcMeasuring = 0;
+	state.compMeasuring = 0;
+
+	state.intAdcSetState = 0;
+	state.compActiveState = 0;
+	state.compSetState = 0;
+
+	state.setMeasurements = 0;
+	state.remainingMeasurements = 0;
+	state.preparedToRunPolarizationPhase = 0;
+	state.measureTechniqueUpdated = 0;
+
+	state.index = 0;
+}
+
+//comparator finished measuring
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == TIM2) {
+		measurementWithCompDone(htim);
+	}
+}
+
+//intADC - buffer filled
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+	if (hadc->Instance == ADC1) {
+		measurementWithIntAdcDone();
+	}
+}
+
+//char received with via USB
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance == USART3) {
+		characterReceived();
+	}
+}
+
+void characterReceived() {
+	HAL_UART_Receive_IT(&huart3, buffer_uart_rx, 1);
+	state.measureTechniqueUpdated = 1;
+	//receivedCharIndex shouldn't exceed 50
+	receivedChars[(receivedCharIndex++) % 50] = buffer_uart_rx[0];
+
+}
+
+//extADC - buffer filled
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
+	if (hspi->Instance == SPI1) {
+		measurementWithExtAdcDone();
 	}
 }
 
@@ -1578,11 +1527,20 @@ int parseText() {
 	char *method = strtok(NULL, ":");
 	char *count = strtok(NULL, ":");
 
+	//-------------------------------------------------------------------------------------
+	// Perform action based on received message
+	//-------------------------------------------------------------------------------------
+
 	//*IDN*
 	if (strcmp(command, "IDN") == 0) {
 		sprintf(msg_buffers, "This is proton precession magnetometer - version 1\n");
 		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers),
 		HAL_MAX_DELAY);
+	}
+
+	//*STOP*
+	if (strcmp(command, "STOP") == 0) {
+		initState();
 	}
 	//*SET:parameter:value*
 	if (strcmp(command, "SET") == 0) {
@@ -1673,10 +1631,14 @@ int parseText() {
 
 void clearReceivedCharsBuffer() {
 	int i = 0;
-	receivedCharIndex = 0;
-	for (i = 0; i < strlen(receivedChars); i++) {
+	//keep everything in range
+	if (receivedCharIndex > 50) {
+		receivedCharIndex = 50;
+	}
+	for (i = 0; i < receivedCharIndex; i++) {
 		receivedChars[i] = '\0';
 	}
+	receivedCharIndex = 0;
 }
 
 void sendMeasuredData() {
@@ -1770,6 +1732,19 @@ void updateState() {
 	state.compActiveState = state.compSetState;
 	state.preparedToRunPolarizationPhase = 1;
 	state.measureTechniqueUpdated = 0;
+}
+
+int stateCanBeUpdated() {
+	return (state.measureTechniqueUpdated && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend && !state.compReadyToSend);
+}
+
+int measurementCanRun() {
+	return (state.preparedToRunPolarizationPhase && !state.extAdcMeasuring && !state.intAdcMeasuring && !state.compMeasuring && !state.extAdcReadyToSend && !state.intAdcReadyToSend
+			&& !state.compReadyToSend);
+}
+
+int stateIsIdle() {
+	return (!state.extAdcActiveState && !state.intAdcActiveState && !state.compActiveState && !state.extAdcReadyToSend && !state.intAdcReadyToSend && !state.compReadyToSend);
 }
 
 /* USER CODE END 4 */
