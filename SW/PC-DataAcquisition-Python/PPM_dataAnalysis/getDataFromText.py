@@ -1,6 +1,8 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 fh = open('test.txt')
+import csv
+
 
 # x axis values 
 x = [] 
@@ -11,17 +13,23 @@ procesingDataFromMeasurement = 0
 graphTitle = ""
 measurementMethod = ""
 
-index = 0
+arrayIndex = 0
 lineIndex = 0
 try:
     for line in fh:
-        lineIndex+=1
-        foundHeadOfCommand = line.find("<")   #if there is "<" character in the line - command was found
-        foundTailOfCommand = line.find(">")   #if there is "<" character in the line - command was found
+        foundHeadOfCommand = line.find("<")   #if there is "<" character in the line - head of command was found
+        foundTailOfCommand = line.find(">")   #if there is ">" character in the line - tail ofcommand was found
         
         #Command line
         if foundHeadOfCommand >= 0:
-            commandText = line[1:-2]           #remove first and last character
+
+            # null arrays
+            arrayIndex = 0
+            x = [] 
+            y = [] 
+            
+            #remove first and last character
+            commandText = line[1:-2]           
             commandArgs = commandText.split(":")
 
             if commandArgs[0] == 'INFO':
@@ -32,7 +40,11 @@ try:
         
         #found end of command    
         elif foundTailOfCommand >= 0:
-            if procesingDataFromMeasurement == 1 and commandArgs[2] == "extADC":
+            if procesingDataFromMeasurement == 1 and (commandArgs[2] == "extADC" or commandArgs[2] == "intADC"):
+                with open('generatedFiles/' + graphTitle + '.csv', 'w', newline='') as csvFile:
+                    csvFileWriter = csv.writer(csvFile, delimiter=',', quotechar='"', lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
+                    for i in range(arrayIndex):   
+                        csvFileWriter.writerow([i, y[i]])
                 fig = plt.figure(figsize=(30, 12))
                 plt.subplot(2, 1, 1)
                 plt.plot(x,y)            
@@ -70,7 +82,55 @@ try:
                 plt.xlabel('step') 
                 plt.ylabel('Amplitude')
                 
-                fig.savefig(graphTitle + '.png', dpi=fig.dpi)
+                fig.savefig('generatedFiles/' + graphTitle + '.png', dpi=fig.dpi)
+
+                #plt.show()
+            elif procesingDataFromMeasurement == 1 and commandArgs[2] == "comp" :
+                yMod = [216000000/yElement  for yElement in y]
+
+                fig = plt.figure(figsize=(34, 12))
+                plt.subplot(2, 1, 1)
+                plt.plot(x,y)            
+                plt.xlabel('step') 
+                plt.ylabel('freq')
+                plt.title(graphTitle) 
+
+                plt.subplot(2, 5, 6)
+                plt.xlim(0, 200)
+                plt.ylim(1900, 2300)
+                plt.plot(x,yMod)
+                plt.xlabel('step') 
+                plt.ylabel('freq')
+
+                plt.subplot(2, 5, 7)
+                plt.xlim(1000, 1200)
+                plt.ylim(1900, 2300)
+                plt.plot(x,yMod)
+                plt.xlabel('step') 
+                plt.ylabel('freq')
+
+                plt.subplot(2, 5, 8)
+                plt.xlim(1900, 2100)
+                plt.ylim(1900, 2300)
+                plt.plot(x,yMod)
+                plt.xlabel('step') 
+                plt.ylabel('freq')
+
+                plt.subplot(2, 5, 9)
+                plt.xlim(3000, 3200)
+                plt.ylim(1900, 2300)
+                plt.plot(x,yMod)
+                plt.xlabel('step') 
+                plt.ylabel('freq')
+
+                plt.subplot(2, 5, 10)
+                plt.xlim(3800, 4000)
+                plt.ylim(1900, 2300)
+                plt.plot(x,yMod)
+                plt.xlabel('step') 
+                plt.ylabel('freq')
+                
+                fig.savefig('generatedFiles/' + graphTitle + '.png', dpi=fig.dpi)
 
                 #plt.show()
 
@@ -80,11 +140,16 @@ try:
         #regular line
         else:
             try:
-                x.append(int(float(index)))
+                x.append(int(float(arrayIndex)))
                 y.append(int(float(line)))
+
             except:
-                print(index)
-            index+=1
+                print(arrayIndex)
+            arrayIndex+=1
+        lineIndex+=1
+except:
+    print(lineIndex)
+
 
 
 fh.close()

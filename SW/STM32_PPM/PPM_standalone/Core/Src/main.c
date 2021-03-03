@@ -127,6 +127,7 @@ uint8_t firstCapturedSample = 0;  // 0- not captured, 1- captured
 
 uint32_t polarizationTime = 5000; // 5 seconds
 uint32_t timeIndex = 0;
+uint32_t timeToNextPolarization = 0;
 
 /* USER CODE END PV */
 
@@ -233,7 +234,8 @@ int main(void)
 			updateState();
 		}
 		//
-		if (measurementCanRun()) {
+		if (measurementCanRun() && timeToNextPolarization == 0) {
+			timeToNextPolarization = 20000000;
 			runMeasurementMethod();
 		}
 		// idle state - if no method is active and there are no data to be sent
@@ -802,7 +804,7 @@ static void MX_TIM5_Init(void)
   htim5.Instance = TIM5;
   htim5.Init.Prescaler = 0;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 2160-1;
+  htim5.Init.Period = 21600-1;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
@@ -1337,7 +1339,11 @@ void switchingCircuitOff() {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM5) {
 		if (timeIndex > 0) {
-			timeIndex -= 10;
+			timeIndex -= 100;
+		}
+		if (timeToNextPolarization > 0)
+		{
+			timeToNextPolarization -= 100;
 		}
 	}
 }
@@ -1350,8 +1356,7 @@ void delay_us(uint32_t delay_us) {
 
 void delay_ms(uint32_t delay_us) {
 	timeIndex = delay_us * 1000;
-	while (timeIndex > 0)
-		;
+	while (timeIndex > 0);
 }
 
 void measureWithExtADC() {
@@ -1489,6 +1494,16 @@ void goToIdleAfterMeasurement() {
 		// -1 indicates infinity measurements
 		if (state.remainingMeasurements != -1) {
 			state.remainingMeasurements--;
+			//if this was the last measurement - set all states to 0
+			if (state.remainingMeasurements == 0)
+			{
+				state.extAdcActiveState = 0;
+				state.extAdcSetState = 0;
+				state.intAdcActiveState = 0;
+				state.intAdcSetState = 0;
+				state.compActiveState = 0;
+				state.compSetState = 0;
+			}
 		}
 	}
 }
@@ -1592,7 +1607,7 @@ int parseText() {
 	// received message is complete ->
 	else if (headCount == tailCount && headCount > 0 && tailCount > 0) {
 		sprintf(msg_buffers, "<INFO:Message accepted>\n");
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 	}
 	//received message is wrong -> delete it
 	else if ((headCount < tailCount)) {
@@ -1619,7 +1634,7 @@ int parseText() {
 	//<IDN> - identification
 	if (strcmp(command, "IDN") == 0) {
 		sprintf(msg_buffers, "<INFO:This is proton precession magnetometer - version 1>\n");
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 	}
 
 	//<INIT> - initialization state
@@ -1733,52 +1748,43 @@ void sendMeasuredData() {
 	if ((state.extAdcReadyToSend == 1)) {
 		set_LED1(0, 0, 1);
 		sprintf(msg_buffers, "<MEAS:%u:extADC:\n", state.index);
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 
 		// first buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
 			adc = (buffer_extAdc_1.uint16[i]);
 			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
-			/* to sand 16 bits of inteeger instead of its string representation
-			 *
-			 adc = (buffer_extAdc_1.uint8[i]);
-			 sprintf(msg_buffers, "%c", adc);
-			 HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
-			 i++;
-			 adc = (buffer_extAdc_1.uint8[i]);
-			 sprintf(msg_buffers, "%c\n", adc);
-			 HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);*/
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		}
 		//second buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
 			adc = (buffer_extAdc_2.uint16[i]);
 			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		}
 		sprintf(msg_buffers, ">\n");
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		state.extAdcReadyToSend = 0;
 	}
 
 	if ((state.intAdcReadyToSend == 1)) {
 		set_LED1(0, 0, 1);
 		sprintf(msg_buffers, "<MEAS:%u:intADC:\n", state.index);
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		// first buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
 			adc = (buffer_intAdc_1.uint16[i]);
 			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		}
 		//second buffer
 		for (i = 0; i < samplesPerPeriod; i++) {
 			adc = (buffer_intAdc_2.uint16[i]);
 			sprintf(msg_buffers, "%hu\n", adc);
-			HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		}
 		sprintf(msg_buffers, ">\n");
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		state.intAdcReadyToSend = 0;
 	}
 
@@ -1786,14 +1792,14 @@ void sendMeasuredData() {
 		set_LED1(0, 0, 1);
 		//send frequency
 		sprintf(msg_buffers, "<MEAS:%u:comp:\n", state.index);
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		for (i = 0; i < 4000; i++) {
 			uint32_t freq = buffer_comp[i + 1] - buffer_comp[i];
 			sprintf(msg_freq, "%d\n", freq);
-			HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_freq, strlen(msg_freq));
+			HAL_UART_Transmit(&huart3, (uint8_t*) msg_freq, strlen(msg_freq), HAL_MAX_DELAY);
 		}
 		sprintf(msg_buffers, ">\n");
-		HAL_UART_Transmit_IT(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers));
+		HAL_UART_Transmit(&huart3, (uint8_t*) msg_buffers, strlen(msg_buffers), HAL_MAX_DELAY);
 		set_LED1(0, 0, 0);
 		state.compReadyToSend = 0;
 	}
