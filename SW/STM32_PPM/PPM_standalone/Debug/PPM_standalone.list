@@ -1969,9 +1969,9 @@ static void MX_TIM5_Init(void)
  8000ec2:	4b1a      	ldr	r3, [pc, #104]	; (8000f2c <MX_TIM5_Init+0x94>)
  8000ec4:	2200      	movs	r2, #0
  8000ec6:	609a      	str	r2, [r3, #8]
-  htim5.Init.Period = 21600-1;
+  htim5.Init.Period = (21600/2) -1;
  8000ec8:	4b18      	ldr	r3, [pc, #96]	; (8000f2c <MX_TIM5_Init+0x94>)
- 8000eca:	f245 425f 	movw	r2, #21599	; 0x545f
+ 8000eca:	f642 222f 	movw	r2, #10799	; 0x2a2f
  8000ece:	60da      	str	r2, [r3, #12]
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
  8000ed0:	4b16      	ldr	r3, [pc, #88]	; (8000f2c <MX_TIM5_Init+0x94>)
@@ -3204,8 +3204,8 @@ void runPolarizationSequence() {
  80015fe:	2140      	movs	r1, #64	; 0x40
  8001600:	4834      	ldr	r0, [pc, #208]	; (80016d4 <runPolarizationSequence+0x1b0>)
  8001602:	f003 f8e9 	bl	80047d8 <HAL_GPIO_WritePin>
-	delay_us(200);
- 8001606:	20c8      	movs	r0, #200	; 0xc8
+	delay_us(50);
+ 8001606:	2032      	movs	r0, #50	; 0x32
  8001608:	f000 f914 	bl	8001834 <delay_us>
 
 	//run sequnece T5 - Coil discharge
@@ -3486,10 +3486,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  80017f8:	681b      	ldr	r3, [r3, #0]
  80017fa:	2b00      	cmp	r3, #0
  80017fc:	d004      	beq.n	8001808 <HAL_TIM_PeriodElapsedCallback+0x24>
-			timeIndex -= 100;
+			timeIndex -= 50;
  80017fe:	4b0b      	ldr	r3, [pc, #44]	; (800182c <HAL_TIM_PeriodElapsedCallback+0x48>)
  8001800:	681b      	ldr	r3, [r3, #0]
- 8001802:	3b64      	subs	r3, #100	; 0x64
+ 8001802:	3b32      	subs	r3, #50	; 0x32
  8001804:	4a09      	ldr	r2, [pc, #36]	; (800182c <HAL_TIM_PeriodElapsedCallback+0x48>)
  8001806:	6013      	str	r3, [r2, #0]
 		}
@@ -3499,10 +3499,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  800180c:	2b00      	cmp	r3, #0
  800180e:	d004      	beq.n	800181a <HAL_TIM_PeriodElapsedCallback+0x36>
 		{
-			timeToNextPolarization -= 100;
+			timeToNextPolarization -= 50;
  8001810:	4b07      	ldr	r3, [pc, #28]	; (8001830 <HAL_TIM_PeriodElapsedCallback+0x4c>)
  8001812:	681b      	ldr	r3, [r3, #0]
- 8001814:	3b64      	subs	r3, #100	; 0x64
+ 8001814:	3b32      	subs	r3, #50	; 0x32
  8001816:	4a06      	ldr	r2, [pc, #24]	; (8001830 <HAL_TIM_PeriodElapsedCallback+0x4c>)
  8001818:	6013      	str	r3, [r2, #0]
 		}

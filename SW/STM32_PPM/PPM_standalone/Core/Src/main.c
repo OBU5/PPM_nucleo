@@ -804,7 +804,7 @@ static void MX_TIM5_Init(void)
   htim5.Instance = TIM5;
   htim5.Init.Prescaler = 0;
   htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim5.Init.Period = 21600-1;
+  htim5.Init.Period = (21600/2) -1;
   htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
@@ -1265,7 +1265,7 @@ void runPolarizationSequence() {
 	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
 	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 0);
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
-	delay_us(200);
+	delay_us(50);
 
 	//run sequnece T5 - Coil discharge
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
@@ -1339,11 +1339,11 @@ void switchingCircuitOff() {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM5) {
 		if (timeIndex > 0) {
-			timeIndex -= 100;
+			timeIndex -= 50;
 		}
 		if (timeToNextPolarization > 0)
 		{
-			timeToNextPolarization -= 100;
+			timeToNextPolarization -= 50;
 		}
 	}
 }
