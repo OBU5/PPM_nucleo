@@ -86,6 +86,21 @@ try:
 
                 #plt.show()
             elif procesingDataFromMeasurement == 1 and commandArgs[2] == "comp" :
+                
+                average = 0
+                averageFreq = 0
+                averageMagInd = 0
+                for i in range(10, 1500):
+                    average = average + y[i]
+                    
+                average = average/(1500-10)
+                averageFreq = 216000000/average
+                averageMagInd = averageFreq/(42.5)
+
+                print(round(average, 4),'[step]')
+                print(round(averageFreq, 4), '[Hz]')
+                print(round(averageMagInd, 4), '[uT]')
+
                 yMod = [216000000/yElement  for yElement in y]
 
                 fig = plt.figure(figsize=(34, 12))
@@ -148,7 +163,7 @@ try:
             arrayIndex+=1
         lineIndex+=1
 except:
-    print(lineIndex)
+    print('error on line - ', lineIndex)
 
 
 

@@ -551,7 +551,7 @@ int main(void)
  80006b2:	681b      	ldr	r3, [r3, #0]
  80006b4:	2b00      	cmp	r3, #0
  80006b6:	d105      	bne.n	80006c4 <main+0xb4>
-			timeToNextPolarization = 20000000;
+			timeToNextPolarization = 15000000;
  80006b8:	4b0c      	ldr	r3, [pc, #48]	; (80006ec <main+0xdc>)
  80006ba:	4a0d      	ldr	r2, [pc, #52]	; (80006f0 <main+0xe0>)
  80006bc:	601a      	str	r2, [r3, #0]
@@ -581,7 +581,7 @@ int main(void)
  80006e4:	20004248 	.word	0x20004248
  80006e8:	2002f428 	.word	0x2002f428
  80006ec:	20000208 	.word	0x20000208
- 80006f0:	01312d00 	.word	0x01312d00
+ 80006f0:	00e4e1c0 	.word	0x00e4e1c0
 
 080006f4 <SystemClock_Config>:
 /**
@@ -4582,16 +4582,16 @@ int parseText() {
  8001f64:	4b56      	ldr	r3, [pc, #344]	; (80020c0 <parseText+0x3a0>)
  8001f66:	601a      	str	r2, [r3, #0]
 
-			//min = 5 seconds
-			if (polarizationTime < 5000) {
+			//min = 3 seconds
+			if (polarizationTime < 3000) {
  8001f68:	4b55      	ldr	r3, [pc, #340]	; (80020c0 <parseText+0x3a0>)
  8001f6a:	681b      	ldr	r3, [r3, #0]
- 8001f6c:	f241 3287 	movw	r2, #4999	; 0x1387
+ 8001f6c:	f640 32b7 	movw	r2, #2999	; 0xbb7
  8001f70:	4293      	cmp	r3, r2
  8001f72:	d804      	bhi.n	8001f7e <parseText+0x25e>
-				polarizationTime = 5000;
+				polarizationTime = 3000;
  8001f74:	4b52      	ldr	r3, [pc, #328]	; (80020c0 <parseText+0x3a0>)
- 8001f76:	f241 3288 	movw	r2, #5000	; 0x1388
+ 8001f76:	f640 32b8 	movw	r2, #3000	; 0xbb8
  8001f7a:	601a      	str	r2, [r3, #0]
  8001f7c:	e10b      	b.n	8002196 <parseText+0x476>
 			}

@@ -125,7 +125,7 @@ uint32_t difference = 0;
 uint32_t frequency = 0;
 uint8_t firstCapturedSample = 0;  // 0- not captured, 1- captured
 
-uint32_t polarizationTime = 5000; // 5 seconds
+uint32_t polarizationTime = 3000; // 3 seconds
 uint32_t timeIndex = 0;
 uint32_t timeToNextPolarization = 0;
 
@@ -235,7 +235,7 @@ int main(void)
 		}
 		//
 		if (measurementCanRun() && timeToNextPolarization == 0) {
-			timeToNextPolarization = 20000000;
+			timeToNextPolarization = 15000000;
 			runMeasurementMethod();
 		}
 		// idle state - if no method is active and there are no data to be sent
@@ -1648,9 +1648,9 @@ int parseText() {
 			//convert received string to integer
 			polarizationTime = atoi(count);
 
-			//min = 5 seconds
-			if (polarizationTime < 5000) {
-				polarizationTime = 5000;
+			//min = 3 seconds
+			if (polarizationTime < 3000) {
+				polarizationTime = 3000;
 			}
 			//max = 60 seconds
 			else if (polarizationTime > 60000) {
