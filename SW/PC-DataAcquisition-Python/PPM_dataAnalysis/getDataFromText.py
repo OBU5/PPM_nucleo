@@ -40,8 +40,8 @@ try:
         
         #found end of command    
         elif foundTailOfCommand >= 0:
-            if procesingDataFromMeasurement == 1 and (commandArgs[2] == "extADC" or commandArgs[2] == "intADC"):
-                with open('generatedFiles/' + graphTitle + '.csv', 'w', newline='') as csvFile:
+            if procesingDataFromMeasurement == 1 and (commandArgs[2] == "extADC" or  commandArgs[2] == "intADC"):
+                with open('generatedFiles/csv/' + graphTitle + '.csv', 'w', newline='') as csvFile:
                     csvFileWriter = csv.writer(csvFile, delimiter=',', quotechar='"', lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
                     for i in range(arrayIndex):   
                         csvFileWriter.writerow([i, y[i]])
@@ -53,40 +53,45 @@ try:
                 plt.title(graphTitle) 
 
                 plt.subplot(2, 5, 6)
-                plt.xlim(0, 800)
+                plt.xlim(0, 1800)
                 plt.plot(x,y)
                 plt.xlabel('step') 
                 plt.ylabel('Amplitude')
 
                 plt.subplot(2, 5, 7)
-                plt.xlim(22000, 22800)
+                plt.xlim(22000, 23800)
                 plt.plot(x,y)
                 plt.xlabel('step') 
                 plt.ylabel('Amplitude')
 
                 plt.subplot(2, 5, 8)
-                plt.xlim(44000, 44800)
+                plt.xlim(44000, 45800)
                 plt.plot(x,y)
                 plt.xlabel('step') 
                 plt.ylabel('Amplitude')
 
                 plt.subplot(2, 5, 9)
-                plt.xlim(66100, 66800)
+                plt.xlim(65100, 66800)
                 plt.plot(x,y)
                 plt.xlabel('step') 
                 plt.ylabel('Amplitude')
 
                 plt.subplot(2, 5, 10)
-                plt.xlim(87400, 88200)
+                plt.xlim(86400, 88200)
                 plt.plot(x,y)
                 plt.xlabel('step') 
                 plt.ylabel('Amplitude')
                 
-                fig.savefig('generatedFiles/' + graphTitle + '.png', dpi=fig.dpi)
+                fig.savefig('generatedFiles/figures/' + graphTitle + '.png', dpi=fig.dpi)
+                plt.close(fig)
 
                 #plt.show()
             elif procesingDataFromMeasurement == 1 and commandArgs[2] == "comp" :
-                
+                with open('generatedFiles/csv/' + graphTitle + '.csv', 'w', newline='') as csvFile:
+                    csvFileWriter = csv.writer(csvFile, delimiter=',', quotechar='"', lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
+                    for i in range(arrayIndex):   
+                        csvFileWriter.writerow([i, y[i]])
+                #print value
                 average = 0
                 averageFreq = 0
                 averageMagInd = 0
@@ -96,11 +101,14 @@ try:
                 average = average/(1500-10)
                 averageFreq = 216000000/average
                 averageMagInd = averageFreq/(42.5)
-
+                print('Measurement ', commandArgs[1])
                 print(round(average, 4),'[step]')
                 print(round(averageFreq, 4), '[Hz]')
                 print(round(averageMagInd, 4), '[uT]')
+                print()
 
+
+                #plot graph
                 yMod = [216000000/yElement  for yElement in y]
 
                 fig = plt.figure(figsize=(34, 12))
@@ -145,7 +153,7 @@ try:
                 plt.xlabel('step') 
                 plt.ylabel('freq')
                 
-                fig.savefig('generatedFiles/' + graphTitle + '.png', dpi=fig.dpi)
+                fig.savefig('generatedFiles/figures/' + graphTitle + '.png', dpi=fig.dpi)
 
                 #plt.show()
 
