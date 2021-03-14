@@ -1084,7 +1084,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 	}
 }
 
-void initState() {
+void initialization() {
 	state.setMeasureTechnique = 0;
 	state.activeMeasureTechnique = 0;
 	state.remainingMeasurements = 0;
