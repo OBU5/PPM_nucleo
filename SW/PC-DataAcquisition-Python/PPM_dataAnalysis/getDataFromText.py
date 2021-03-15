@@ -83,9 +83,8 @@ try:
                 plt.ylabel('Amplitude')
                 
                 fig.savefig('generatedFiles/figures/' + graphTitle + '.png', dpi=fig.dpi)
-                plt.close(fig)
-
-                #plt.show()
+                #plt.close(fig)
+                plt.show()
             elif procesingDataFromMeasurement == 1 and commandArgs[2] == "comp" :
                 with open('generatedFiles/csv/' + graphTitle + '.csv', 'w', newline='') as csvFile:
                     csvFileWriter = csv.writer(csvFile, delimiter=',', quotechar='"', lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
@@ -155,7 +154,7 @@ try:
                 
                 fig.savefig('generatedFiles/figures/' + graphTitle + '.png', dpi=fig.dpi)
 
-                #plt.show()
+               # plt.show()
 
 
 

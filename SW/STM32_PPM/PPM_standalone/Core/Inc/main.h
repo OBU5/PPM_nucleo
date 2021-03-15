@@ -84,10 +84,6 @@ void Error_Handler(void);
 #define UART3_TX_FT230_GPIO_Port GPIOB
 #define UART3_RX_FT230_Pin GPIO_PIN_11
 #define UART3_RX_FT230_GPIO_Port GPIOB
-#define UART5_RX_Pin GPIO_PIN_12
-#define UART5_RX_GPIO_Port GPIOB
-#define UART5_TX_Pin GPIO_PIN_13
-#define UART5_TX_GPIO_Port GPIOB
 #define UART1_TX_Pin GPIO_PIN_14
 #define UART1_TX_GPIO_Port GPIOB
 #define UART1_RX_Pin GPIO_PIN_15

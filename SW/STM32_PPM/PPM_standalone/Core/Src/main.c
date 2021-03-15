@@ -65,7 +65,6 @@ TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim8;
 DMA_HandleTypeDef hdma_tim2_ch1;
 
-UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart7;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -130,7 +129,7 @@ uint32_t frequency = 0;
 uint8_t firstCapturedSample = 0;  // 0- not captured, 1- captured
 
 uint32_t timeIndex = 0;
-uint32_t remainingTimeToNextMeasurement = 0;
+uint32_t remainingTimeToNextMeasurement;
 uint32_t remainingPolarizationTime = 0;
 
 /* USER CODE END PV */
@@ -146,7 +145,6 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM8_Init(void);
-static void MX_UART5_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
@@ -200,7 +198,6 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM8_Init();
-  MX_UART5_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
@@ -307,12 +304,11 @@ void SystemClock_Config(void)
   }
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_TIM|RCC_PERIPHCLK_USART1
                               |RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_USART3
-                              |RCC_PERIPHCLK_UART5|RCC_PERIPHCLK_UART7
-                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_I2C3;
+                              |RCC_PERIPHCLK_UART7|RCC_PERIPHCLK_I2C1
+                              |RCC_PERIPHCLK_I2C3;
   PeriphClkInitStruct.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInitStruct.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
   PeriphClkInitStruct.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-  PeriphClkInitStruct.Uart5ClockSelection = RCC_UART5CLKSOURCE_PCLK1;
   PeriphClkInitStruct.Uart7ClockSelection = RCC_UART7CLKSOURCE_PCLK1;
   PeriphClkInitStruct.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInitStruct.I2c3ClockSelection = RCC_I2C3CLKSOURCE_PCLK1;
@@ -963,41 +959,6 @@ static void MX_TIM8_Init(void)
 }
 
 /**
-  * @brief UART5 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_UART5_Init(void)
-{
-
-  /* USER CODE BEGIN UART5_Init 0 */
-
-  /* USER CODE END UART5_Init 0 */
-
-  /* USER CODE BEGIN UART5_Init 1 */
-
-  /* USER CODE END UART5_Init 1 */
-  huart5.Instance = UART5;
-  huart5.Init.BaudRate = 115200;
-  huart5.Init.WordLength = UART_WORDLENGTH_8B;
-  huart5.Init.StopBits = UART_STOPBITS_1;
-  huart5.Init.Parity = UART_PARITY_NONE;
-  huart5.Init.Mode = UART_MODE_TX_RX;
-  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart5.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart5.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart5) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN UART5_Init 2 */
-
-  /* USER CODE END UART5_Init 2 */
-
-}
-
-/**
   * @brief UART7 Initialization Function
   * @param None
   * @retval None
@@ -1193,6 +1154,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(SN6505_EN_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PB12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pins : LED1_R_Pin LED1_G_Pin LED1_B_Pin SN6505_END11_Pin 
                            LED2_Pin LED3_Pin LED4_Pin Switches_driver_enable_Pin 
                            S1_Pin S2_Pin S3_Pin S4_Pin 
@@ -1305,7 +1272,7 @@ void runMeasurementSequence() {
 	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
 	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
-	delay_ms(5);
+	delay_ms(3);
 	//run sequnece T8 - measure
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
 	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 1);
@@ -1566,6 +1533,40 @@ void setStateToDefault(){
 	state.index = 0;
 	
 }
+
+
+void setStateToMeasureOnlyNoPolarization(){
+	state.extAdcReadyToSend = 0;
+	state.intAdcReadyToSend = 0;
+	state.compReadyToSend = 0;
+
+	state.extAdcActiveState = 1;
+	state.intAdcActiveState = 0;
+	state.compActiveState = 0;
+
+	state.extAdcMeasuring = 0;
+	state.intAdcMeasuring = 0;
+	state.compMeasuring = 0;
+
+	state.extAdcSetState = 1;
+	state.intAdcSetState = 0;
+	state.compSetState = 0;
+
+	state.remainingMeasurements = -1;
+	state.setMeasurements = -1;
+	state.wholeMeasurementPeriod = 7000; 	//in ms -> 5 sec
+	state.polarizationPeriod = 5000; 		//in ms -> 3 sec
+
+	remainingTimeToNextMeasurement = 2000000;
+	remainingPolarizationTime = 0;
+
+	state.newDataInBuffer = 0;
+	state.measureTechniqueUpdated = 0;
+	state.preparedToRunPolarizationPhase = 0;
+	state.preparedToRunMeasurementPhase = 1;
+	state.index = 0;
+
+}
 void setStateToIdle(){
 	state.extAdcReadyToSend = 0;
 	state.intAdcReadyToSend = 0;
@@ -1596,11 +1597,13 @@ void setStateToIdle(){
 }
 
 void initialization() {
+	setStateToMeasureOnlyNoPolarization();
+
 	HAL_UART_Receive_IT(&huart3, buffer_uart_rx, 1);	// start listening to commands
 	HAL_TIM_Base_Start_IT(&htim5); 						// start timer for delay measuring
 	switchingCircuitIdle();
 	set_LED1(0, 0, 0);
-	setStateToDefault();								// set state in order to polarize with period 5 seconds
+	//setStateToDefault();								// set state in order to polarize with period 5 seconds
 }
 
 //comparator finished measuring
