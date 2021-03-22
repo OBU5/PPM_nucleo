@@ -84,6 +84,9 @@ void Error_Handler(void);
 #define UART3_TX_FT230_GPIO_Port GPIOB
 #define UART3_RX_FT230_Pin GPIO_PIN_11
 #define UART3_RX_FT230_GPIO_Port GPIOB
+#define SYNC_Pin GPIO_PIN_12
+#define SYNC_GPIO_Port GPIOB
+#define SYNC_EXTI_IRQn EXTI15_10_IRQn
 #define UART1_TX_Pin GPIO_PIN_14
 #define UART1_TX_GPIO_Port GPIOB
 #define UART1_RX_Pin GPIO_PIN_15
@@ -108,8 +111,10 @@ void Error_Handler(void);
 #define Gen_SPI1_CLK_for_ext_ADC_GPIO_Port GPIOC
 #define BTN1_Pin GPIO_PIN_7
 #define BTN1_GPIO_Port GPIOC
+#define BTN1_EXTI_IRQn EXTI9_5_IRQn
 #define BTN2_Pin GPIO_PIN_8
 #define BTN2_GPIO_Port GPIOC
+#define BTN2_EXTI_IRQn EXTI9_5_IRQn
 #define Comp_Pin GPIO_PIN_15
 #define Comp_GPIO_Port GPIOA
 #define Switches_driver_enable_Pin GPIO_PIN_0

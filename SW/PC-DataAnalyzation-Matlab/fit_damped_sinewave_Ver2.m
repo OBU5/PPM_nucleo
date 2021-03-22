@@ -6,6 +6,10 @@ load data_part.mat
 % make it even number of samples
 sig=sig(1:end-1);
 
+
+%% import data
+
+sig = table2array(extADC3(1:44100,2)) - 32768;
 %% ========================================================================
 % A - Compute Analytic signal from measured signal
 % =========================================================================
@@ -56,16 +60,18 @@ n=length(dang);
 % C - Determine frequency
 % =========================================================================
 % time needed for one cycle
-tau=2*pi*(n/100000)/diffdang;
+tau=2*pi*(n/44100)/diffdang;
 
 % 2085.9351Hz, inverse of tau
 ff = 1/tau
+sprintf('%.4f',ff)
+
 
 % adjusted for 0 phase difference at the beginning by hand
 % adjusted for 0 phase difference at the end by design
 % in between the accumulated phase jitter of the sampled signal
 % imho this is a systematic error
-sigr1=max(abs(sig)*0.5)*cos(2*pi*ff*(-18+(0:n-1))/100000);
+sigr1=max(abs(sig)*0.5)*cos(2*pi*ff*(-28+(0:n-1))/44100);
 
 
 figure

@@ -188,7 +188,7 @@ if(1)
     % The index increases each cycle by 1. The loop is terminated when
     % maxIndex is reached
     index = 1;
-    maxIndex = 10;
+    maxIndex = 1;
     
     
     %----------------------------------------------------------------------

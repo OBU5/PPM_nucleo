@@ -26,7 +26,9 @@ terminate = 0
 while terminate != 1:    
     waiting = serial.in_waiting                         # find num of bytes currently waiting in hardware
     for c in serial.read(waiting):                       # read them, convert to ascii
-        if (chr(c) != ';'):
+        if (chr(c) == '<'):
+            buffer += chr(c) 
+        if (chr(c) != ''):
             buffer += chr(c) 
         else:
             terminate =1
