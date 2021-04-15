@@ -1201,16 +1201,6 @@ void runMeasurementSequence() {
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
 	delay_ms(10);
 
-
-	//run sequnece T6 - Coil discharge
-	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
-	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
-	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, 1);
-	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
-	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
-	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 1);
-	delay_ms(10);
-
 	//run sequnece T7 - wait before measuring
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
 	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 0);
@@ -1218,8 +1208,7 @@ void runMeasurementSequence() {
 	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
 	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
-	delay_ms(10);
-
+	delay_ms(2);
 
 	//run sequnece T8 - wait before measuring
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
@@ -1228,7 +1217,8 @@ void runMeasurementSequence() {
 	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
 	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
-	delay_ms(10);
+	delay_ms(2);
+
 	//run sequnece T9 - measure
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
 	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, 1);
