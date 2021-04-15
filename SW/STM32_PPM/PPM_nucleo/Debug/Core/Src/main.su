@@ -34,7 +34,7 @@ main.c:984:6:sendDataOverUART	48	static
 main.c:1023:6:HAL_TIM_PeriodElapsedCallback	16	static
 main.c:1045:6:Configure_DMA	24	static
 main.c:1081:6:HAL_TIM_IC_CaptureCallback	16	static
-main.c:1087:6:initState	4	static
+main.c:1087:6:initialization	4	static
 main.c:1095:6:runMeasurementMethod	8	static
 main.c:1128:6:showOnLEDs	16	static
 main.c:1135:6:measureWithExternalADC	8	static

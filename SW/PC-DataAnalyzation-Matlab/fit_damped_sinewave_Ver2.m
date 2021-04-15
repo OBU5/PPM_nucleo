@@ -19,14 +19,16 @@ a0=2/(pi*(0+1));
 a2=2/(pi*(2+1));
 a4=2/(pi*(4+1));
 n=length(sig);
-
-for(k=1:n)
-    %calc anlytic signal, 10th order FIR
-    xx(1) = sig(k);
-    sigiq(k)= xx(5)+ ...
-        j*((xx(1)-xx(10))*a0+(xx(2)-xx(8))*a2+(xx(4)-xx(6))*a4);
-    xx=[sig(k) xx(1:9)];
+if(0)
+    for(k=1:n)
+        %calc anlytic signal, 10th order FIR
+        xx(1) = sig(k);
+        sigiq(k)= xx(5)+ ...
+            j*((xx(1)-xx(10))*a0+(xx(2)-xx(8))*a2+(xx(4)-xx(6))*a4);
+        xx=[sig(k) xx(1:9)];
+    end;
 end;
+sigiq=hilbert(sig);
 
 % analytic signal with FFT
 % freq = 2085.9483Hz
@@ -47,8 +49,10 @@ plot(1:n,real(sigiq),'b.-',1:n,imag(sigiq),'r.-');
 % determine angle between each sample
 dang=angle(sigiq(1:end-1)./sigiq(2:end));
 % sum the angles to create 
+plot(dang)
 dang=cumsum(dang);
-
+figure
+plot(dang)
 % throw away filter transient
 dang=dang(30:end);
 
@@ -71,7 +75,7 @@ sprintf('%.4f',ff)
 % adjusted for 0 phase difference at the end by design
 % in between the accumulated phase jitter of the sampled signal
 % imho this is a systematic error
-sigr1=max(abs(sig)*0.5)*cos(2*pi*ff*(-28+(0:n-1))/44100);
+sigr1=max(abs(sig)*0.5)*cos(2*pi*ff*(-19+(0:n-1))/44100);
 
 
 figure
