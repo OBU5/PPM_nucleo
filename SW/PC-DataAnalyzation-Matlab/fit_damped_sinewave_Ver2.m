@@ -2,9 +2,9 @@
 % https://www.mathworks.com/matlabcentral/fileexchange/50756-fit-a-damped-sine-wave
 clear
 % this is your signal
-load data_part.mat
+load signal44100.mat
 % make it even number of samples
-sig=sig(1:end-1);
+sig=sig(30:4980) - 32768;
 
 
 %% import data
@@ -51,24 +51,23 @@ dang=angle(sigiq(1:end-1)./sigiq(2:end));
 % sum the angles to create 
 plot(dang)
 dang=cumsum(dang);
-figure
-plot(dang)
+%figure
+%plot(dang)
 % throw away filter transient
-dang=dang(30:end);
 
 %angle difference
 diffdang=max(dang)-min(dang);
 n=length(dang);
 
 %% ========================================================================
-% C - Determine frequency
+% C - Determin2078.3034766331007e frequency
 % =========================================================================
 % time needed for one cycle
-tau=2*pi*(n/44100)/diffdang;
+tau=2*pi*(n/(216000000/4898))/diffdang;
 
 % 2085.9351Hz, inverse of tau
 ff = 1/tau
-sprintf('%.4f',ff)
+sprintf('%.10f',ff)
 
 
 % adjusted for 0 phase difference at the beginning by hand
@@ -111,3 +110,31 @@ subplot(2,4,8)
 plot(1:n,sig(1:n),'r.-',1:n,sigr1,'b.-');
 xlim([length(sig) - zoomLevel  length(sig)])
 title('\fontsize{15}ending of the signal');return
+%%
+sig=sig(1:end-1);
+spsig=fft(sig);
+n=length(sig);
+spsig(n/2+1:end)=0;
+sigh=ifft(spsig);
+ww=unwrap(angle(sigh));
+ww=ww(80:end);
+ww=ww(1:end-50);
+% Phase and frequency jitter. very bad
+phasejitter=diff(ww);
+ff=mean(phasejitter);
+sigart=abs(sigh).'.*exp((0:n-1)*j*ff); % artificial, no jitter
+sigartr=real(sigart);
+wws=ww-linspace(ww(1),ww(end),length(ww)).';
+(2*pi)/(100000/2085);
+
+fit_damped_sinewave(sigartr);
+
+return
+
+%%
+h = 0.001;       % step size
+X = -pi:h:pi;    % domain
+f = sin(X);      % range
+Y = diff(f)/h;   % first derivative
+Z = diff(Y)/h;   % second derivative
+plot(X(:,1:length(Y)),Y,'r',X,f,'b', X(:,1:length(Z)),Z,'k')

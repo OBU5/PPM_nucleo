@@ -1208,7 +1208,7 @@ void runMeasurementSequence() {
 	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
 	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
-	delay_ms(2);
+	delay_ms(10);
 
 	//run sequnece T8 - wait before measuring
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
@@ -1217,7 +1217,7 @@ void runMeasurementSequence() {
 	HAL_GPIO_WritePin(S4_GPIO_Port, S4_Pin, 0);
 	HAL_GPIO_WritePin(S5_GPIO_Port, S5_Pin, 1);
 	HAL_GPIO_WritePin(S6_GPIO_Port, S6_Pin, 0);
-	delay_ms(2);
+	delay_ms(10);
 
 	//run sequnece T9 - measure
 	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, 0);
@@ -1463,7 +1463,7 @@ void setStateToDefault() {
 
 	state.extAdcActiveState = 1;
 	state.intAdcActiveState = 0;
-	state.compActiveState = 0;
+	state.compActiveState = 1;
 
 	state.extAdcMeasuring = 0;
 	state.intAdcMeasuring = 0;
@@ -1475,7 +1475,7 @@ void setStateToDefault() {
 
 	state.remainingMeasurements = -1;
 	state.setMeasurements = -1;
-	setMeasurementPeriod(7000);		//7 sec
+	setMeasurementPeriod(8000);		//8 sec
 
 	state.newDataInBuffer = 0;
 	state.measureTechniqueUpdated = 0;
@@ -1897,7 +1897,7 @@ int isModeMeasureOnSync() {
 
 void setMeasurementPeriod(uint16_t time) {
 	if (time > 2000) {
-		state.polarizationPeriod = time - 2000;
+		state.polarizationPeriod = time - 2100;
 		state.wholeMeasurementPeriod = time;
 	}
 }
