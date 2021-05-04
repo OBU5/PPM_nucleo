@@ -1,0 +1,8 @@
+communication.c:16:5:parseText	168	static
+communication.c:179:6:sendMeasuredData	88	static
+communication.c:241:5:newDataInBuffer	4	static
+communication.c:246:5:dataReadyToSend	4	static
+communication.c:251:5:dataReadyToSendAfterMeasurement	8	static
+communication.c:256:5:dataReadyToSendBeforeMeasurement	8	static
+communication.c:260:6:clearReceivedCharsBuffer	16	static
+communication.c:273:6:characterReceived	8	static

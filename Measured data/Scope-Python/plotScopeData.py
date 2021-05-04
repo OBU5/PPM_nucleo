@@ -4,20 +4,20 @@ import matplotlib.pyplot as plt
 from matplotlib import gridspec
 
 
-filePath = 'Polarization - turn off/BSS138/TimeConst-4.7ms/5ms between S3 and S2/BPfilter/'
+filePath = 'LogicAnalyser/'
 
 C1_label = 'C1'
 C2_label = 'C2'
 C3_label = 'C3'
 C4_label = 'C4'
 
-startTime = 10
-stopTime = 50
+startTime = 0
+stopTime = 40
 
 C1_corrector = 1
 C2_corrector = 1
 C3_corrector = 1
-C4_corrector = 1.4705
+C4_corrector = 1
 
 time = []
 C1_y = []
@@ -82,16 +82,17 @@ plt.subplot(gs[0])
 plt.plot(zoomedTime,zoomedC1_y, color = "tab:blue", label=C1_label)  
 plt.legend(loc="upper right")
 plt.grid(True)
+plt.yticks(np.arange(0, 2, 1.0))
 plt.xlim(0, stopTime - startTime)
 
 ax = plt.gca() 
-ax.set_xticklabels([])  # remove x axis
 
 #plot C2
 plt.subplot(gs[1])
 plt.plot(zoomedTime,zoomedC2_y, color = "tab:orange", label=C2_label)  
 plt.legend(loc="upper right")
 plt.grid(True)
+plt.yticks(np.arange(0, 2, 1.0))
 plt.xlim(0, stopTime - startTime)
 ax = plt.gca() 
 ax.set_xticklabels([])  # remove x axis
@@ -102,7 +103,7 @@ plt.plot(zoomedTime,zoomedC3_y, color = "tab:green", label=C3_label)
 plt.legend(loc="upper right")
 plt.grid(True)
 plt.xlim(0, stopTime - startTime)
-plt.yticks(np.arange(0, 6, 1.0))
+plt.yticks(np.arange(0, 2, 1.0))
 ax = plt.gca() 
 ax.set_xticklabels([])  # remove x axis
 
@@ -113,7 +114,7 @@ plt.legend(loc="upper right")
 plt.grid(True)
 plt.xlabel('Čas [ms]') 
 plt.xlim(0, stopTime - startTime)
-plt.yticks(np.arange(0, 6, 1.0))
+plt.yticks(np.arange(0, 2, 1.0))
 fig.subplots_adjust(wspace=0, hspace=0.1)
 
                 

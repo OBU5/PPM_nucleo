@@ -1,0 +1,2 @@
+measurementController.c:13:6:goToIdleAfterMeasurement	8	static
+measurementController.c:37:6:setMeasurementPeriod	16	static

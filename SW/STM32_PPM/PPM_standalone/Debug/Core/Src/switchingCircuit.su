@@ -1,0 +1,2 @@
+switchingCircuit.c:12:6:runPolarizationSequence	8	static
+switchingCircuit.c:41:6:runMeasurementSequence	8	static

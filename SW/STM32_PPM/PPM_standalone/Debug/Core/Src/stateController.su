@@ -1,0 +1,16 @@
+stateController.c:10:6:changeStateMode	8	static
+stateController.c:27:5:stateCanBeUpdated	4	static
+stateController.c:31:6:updateState	4	static
+stateController.c:41:6:setStateToDefault	8	static
+stateController.c:71:6:setStateToMeasureOnSync	8	static
+stateController.c:106:6:setStateToIdle	4	static
+stateController.c:135:5:lastMeasurement	4	static
+stateController.c:141:5:ploarizationCanRun	4	static
+stateController.c:146:5:measurementCanRun	4	static
+stateController.c:151:5:stateIsIdle	4	static
+stateController.c:155:5:isWaitingForSync	8	static
+stateController.c:159:6:isMeasuring	4	static
+stateController.c:162:5:isSending	4	static
+stateController.c:166:5:canDecreaseRemainingMeasurements	4	static
+stateController.c:170:5:isModeMeasureOnSync	4	static
+stateController.c:175:6:prepareForPolarizationPhaseIfPossible	4	static

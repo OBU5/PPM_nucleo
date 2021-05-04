@@ -11,11 +11,11 @@ C1_label = 'PMOS'
 C2_label = 'Proud'
 C3_label = 'S1'
 
-startTime = 3.999970951
-stopTime = 4.000325941
+startTime = 3.99997672
+stopTime = 4.000349393
 
-C1_corrector = 1
-C2_corrector = 1000
+C1_corrector = 0.7
+C2_corrector = 1
 C3_corrector = 1
 C4_corrector = 1
 
@@ -87,6 +87,7 @@ ax.set_xticklabels([])  # remove x axis
 plt.subplot(gs[1])
 plt.plot(zoomedTime,zoomedC2_y,linewidth=2, color = "tab:red", label=C2_label)  
 plt.legend(loc="upper right")
+plt.yticks(np.arange(0, 700, 100))
 plt.grid(True)
 plt.ylabel('Proud [mA]') 
 plt.xlim(startTime, stopTime)
@@ -101,7 +102,7 @@ plt.legend(loc="upper right")
 plt.grid(True)
 plt.xlim(startTime, stopTime)
 plt.ylabel('Napětí [V]') 
-plt.yticks(np.arange(0, 6, 1.0))
+plt.yticks(np.arange(0, 6, 2.5))
 fig.subplots_adjust(wspace=0, hspace=0.1)
 plt.xlabel('Čas [s]') 
 x_formatter = ScalarFormatter(useOffset=False)

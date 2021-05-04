@@ -1,0 +1,2 @@
+switchingController.c:11:6:runPolarizationSequence	8	static
+switchingController.c:40:6:runMeasurementSequence	8	static
