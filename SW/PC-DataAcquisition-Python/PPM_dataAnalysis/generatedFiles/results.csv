@@ -137,3 +137,79 @@ time,hilbert transform,fft without zero padding,fft with zero padding (bin width
 24,48892.6735869251,49173.23734167499,49152.10184050535,49152.33670449954,49031.41879629725
 32,49142.514717016005,49173.23734167499,49149.28347257504,49149.98806455762,49103.79393680292
 40,48868.36836235667,49173.23734167499,49142.94214473186,49142.94214473186,49002.67573008491
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+0,49069.756299501576,49173.23734167499,49144.11646470281,49145.29078467378,49136.910947172684
+8,49009.18664382745,49173.23734167499,49141.53296076671,49140.59350478994,49026.82837644988
+16,49136.94387618459,49173.23734167499,49147.6394246157,49147.6394246157,49110.73721042983
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+0,49069.756299501576,49173.23734167499,49144.11646470281,49145.29078467378,49136.910947172684
+8,49009.18664382745,49173.23734167499,49141.53296076671,49140.59350478994,49026.82837644988
+16,49136.94387618459,49173.23734167499,49147.6394246157,49147.6394246157,49110.73721042983
+24,48892.6735869251,49173.23734167499,49152.10184050535,49152.33670449954,49031.41879629725
+32,49142.514717016005,49173.23734167499,49149.28347257504,49149.98806455762,49103.79393680292
+40,48868.36836235667,49173.23734167499,49142.94214473186,49142.94214473186,49002.67573008491
+48,49136.42061811436,49173.23734167499,49148.34401659827,49147.6394246157,49151.42062667614
+56,49132.90533056491,49173.23734167499,49148.109152604084,49147.6394246157,49078.29762290636
+64,49003.48799950437,49173.23734167499,49153.04129648212,49152.33670449954,49092.24755903226
+72,49001.00485622599,49173.23734167499,49143.88160070863,49142.94214473186,48951.683011253095
+80,49140.86140617488,49173.23734167499,49150.927520534395,49149.98806455762,49054.99924032668
+88,48888.88596566812,49173.23734167499,49151.16238452858,49149.98806455762,49019.863843754974
+96,48998.94688847906,49173.23734167499,49145.760512662164,49145.29078467378,48993.899024660444
+104,49120.31318439274,49173.23734167499,49145.995376656356,49145.29078467378,49060.41020091011
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+0,49069.756299501576,49173.23734167499,49144.11646470281,49145.29078467378,49136.910947172684
+8,49009.18664382745,49173.23734167499,49141.53296076671,49140.59350478994,49026.82837644988
+16,49136.94387618459,49173.23734167499,49147.6394246157,49147.6394246157,49110.73721042983
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+0,49069.756299501576,49173.23734167499,49144.11646470281,49145.29078467378,49136.910947172684
+8,49009.18664382745,49173.23734167499,49141.53296076671,49140.59350478994,49026.82837644988
+16,49136.94387618459,49173.23734167499,49147.6394246157,49147.6394246157,49110.73721042983
+24,48892.6735869251,49173.23734167499,49152.10184050535,49152.33670449954,49031.41879629725
+32,49142.514717016005,49173.23734167499,49149.28347257504,49149.98806455762,49103.79393680292
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+0,49069.756299501576,49173.23734167499,49144.11646470281,49145.29078467378,49136.910947172684
+8,49009.18664382745,49173.23734167499,49141.53296076671,49140.59350478994,49026.82837644988
+16,49136.94387618459,49173.23734167499,49147.6394246157,49147.6394246157,49110.73721042983
+24,48892.6735869251,49173.23734167499,49152.10184050535,49152.33670449954,49031.41879629725
+32,49142.514717016005,49173.23734167499,49149.28347257504,49149.98806455762,49103.79393680292
+40,48868.36836235667,49173.23734167499,49142.94214473186,49142.94214473186,49002.67573008491
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator
+time,hilbert transform,fft without zero padding,fft with zero padding (bin width of 10 mHz),fft with zero padding (bin width of 100 mHz),comparator

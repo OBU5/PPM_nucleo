@@ -1263,9 +1263,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 //char received with via USB
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance == USART3) {
-		characterReceived(huart3);
+		//receivedCharIndex shouldn't exceed 100
+		receivedChars[(receivedCharIndex++) % 100] = buffer_uart_rx[0];
+		state.newDataInBuffer = 1;
+		HAL_UART_Receive_IT(&huart3, buffer_uart_rx, 1);
 	}
 }
+
 
 //extADC - buffer filled
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {

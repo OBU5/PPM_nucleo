@@ -53,6 +53,7 @@ State state;
 
 
 uint8_t buffer_uart_rx[1];
+uint8_t receivedCharIndex;
 
 union Buffer buffer_extAdc_1;
 union Buffer buffer_extAdc_2;

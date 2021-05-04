@@ -8,11 +8,6 @@
 #include "config.h"
 #include "communication.h"
 
-
-uint8_t receivedCharIndex;
-
-
-
 int parseText(UART_HandleTypeDef huart) {
 	//-------------------------------------------------------------------------------------
 	//check if there is character "<" and ">"
@@ -270,12 +265,6 @@ void clearReceivedCharsBuffer() {
 }
 
 
-void characterReceived(UART_HandleTypeDef huart) {
-	HAL_UART_Receive_IT(&huart, buffer_uart_rx, 1);
-	//receivedCharIndex shouldn't exceed 100
-	receivedChars[(receivedCharIndex++) % 100] = buffer_uart_rx[0];
-	state.newDataInBuffer = 1;
-}
 
 
 

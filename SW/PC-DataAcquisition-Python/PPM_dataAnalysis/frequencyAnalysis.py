@@ -25,7 +25,6 @@ def computeFFTOfSignal(signal, startSample, endSample, fs ):
     y[:N] = signalForFFT
     y_fft = fft(y)
     x_fft = fftfreq(N, 1/fs)[:N//2]
-    print(len(x_fft))
     
     locY = np.argmax(2.0/N * np.abs(y_fft[0:N//2])) # Find its location
     #plt.plot(2.0/totalN * np.abs(y_fft[0:totalN//2]))
@@ -46,9 +45,7 @@ def computeFFTOfSignalWithZeroPadding(signal, startSample, endSample, fs, zeropa
     zeropadded_y = np.zeros(totalN)
     zeropadded_y[:N] = signalForFFT
     y_fft = fft(zeropadded_y)
-    x_fft = fftfreq(totalN, 1/fs)[:totalN//2]
-    print(len(x_fft))
-    
+    x_fft = fftfreq(totalN, 1/fs)[:totalN//2]  
     locY = np.argmax(2.0/totalN * np.abs(y_fft[0:totalN//2])) # Find its location
     #plt.plot(2.0/totalN * np.abs(y_fft[0:totalN//2]))
     #plt.grid()

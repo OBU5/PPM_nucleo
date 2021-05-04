@@ -18,4 +18,5 @@ void set_LED2(uint8_t val);
 void set_LED3(uint8_t val);
 void set_LED4(uint8_t val);
 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 #endif /* SRC_GPIO_H_ */
