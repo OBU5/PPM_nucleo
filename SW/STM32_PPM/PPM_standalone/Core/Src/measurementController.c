@@ -34,7 +34,7 @@ void goToIdleAfterMeasurement() {
 
 
 
-void setMeasurementPeriod(uint16_t time) {
+void setMeasurementPeriod(uint32_t time) {
 	if (time > 2000) {
 		state.polarizationPeriod = time - 2100;
 		state.wholeMeasurementPeriod = time;

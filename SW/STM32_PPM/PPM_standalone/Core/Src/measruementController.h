@@ -36,6 +36,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 //extADC - buffer filled
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi);
 
-void setMeasurementPeriod(uint16_t time);
+void setMeasurementPeriod(uint32_t time);
 
 #endif /* SRC_MEASRUEMENTCONTROLLER_H_ */

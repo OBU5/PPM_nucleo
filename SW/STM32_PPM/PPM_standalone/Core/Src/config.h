@@ -33,8 +33,8 @@ typedef struct States {
 
 	int16_t remainingMeasurements; 	//
 	int16_t setMeasurements; 		//
-	int16_t wholeMeasurementPeriod; //in ms
-	int16_t polarizationPeriod; 	//in ms
+	int32_t wholeMeasurementPeriod; //in ms
+	int32_t polarizationPeriod; 	//in ms
 
 	uint8_t newDataInBuffer;
 	uint8_t measureTechniqueUpdated;

@@ -84,9 +84,12 @@ int parseText(UART_HandleTypeDef huart) {
 	//<SET:parameter:value>
 	if (strcmp(command, "SET") == 0) {
 		//polarization time
-		if (strcmp(method, "polT") == 0) {
+		if (strcmp(method, "period") == 0) {
 			//convert received string to integer
-			//polarizationTime = atoi(count);
+			uint32_t tmpVal = atoi(count);
+			if(tmpVal > 5000 && tmpVal < 8640000){
+				setMeasurementPeriod(tmpVal);
+			}
 		}
 	}
 	//<MEAS:method:count>

@@ -33,24 +33,21 @@ def computeFFTOfSignal(signal, startSample, endSample, fs ):
     frqY = x_fft[locY] # Get the actual frequency value
     return frqY
 
-def computeFFTOfSignalWithZeroPadding(signal, startSample, endSample, fs, zeropadding):    
+def computeFFTOfSignalWithZeroPadding(signal, startSample, endSample, fs, totalN):    
     
     signalForFFT = []
-    N = (endSample-startSample)
-
+    N = (endSample-startSample) # počet vzorků z uvažovaného signálu
+    # odstranění DC ofsetu a filtrování hodnot podle startSample a endSample
     for k in range(len(signal)):   
         if((k >= startSample) and (k < endSample)):
             signalForFFT.append(signal[k]- 32768)     
-    totalN = zeropadding
     zeropadded_y = np.zeros(totalN)
     zeropadded_y[:N] = signalForFFT
     y_fft = fft(zeropadded_y)
     x_fft = fftfreq(totalN, 1/fs)[:totalN//2]  
-    locY = np.argmax(2.0/totalN * np.abs(y_fft[0:totalN//2])) # Find its location
-    #plt.plot(2.0/totalN * np.abs(y_fft[0:totalN//2]))
-    #plt.grid()
-    #plt.show()
-    frqY = x_fft[locY] # Get the actual frequency value
+    # nalezení frekvence precesního signálu
+    locY = np.argmax(2.0/totalN * np.abs(y_fft[0:totalN//2])) 
+    frqY = x_fft[locY] 
     return frqY
 
 def computeFrequencyWithHilbertTransform(signal, startSample, endSample, fs):
@@ -307,3 +304,16 @@ def computeFrequencyWithHilbertTransform(signal, startSample, endSample, fs):
         # print("        instantaneous frequency")
 
     return f_average
+
+def computeFrequencyWithComparator(signal, startSample, endSample, f_timer): 
+    average = 0
+    skippedValues = 0
+    for i in range(startSample, endSample):
+        #omit smaller than 35uT or greater than 60 uT
+        if(signal[i] < 84573 or signal[i] >144966 ):
+            skippedValues += 1
+        else:
+            average = average + signal[i]
+    average = average/(endSample-startSample - skippedValues)
+    f_comparator = f_timer/average
+    return f_comparator
